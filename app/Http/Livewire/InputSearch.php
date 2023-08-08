@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class InputSearch extends Component
 {
@@ -14,6 +15,6 @@ class InputSearch extends Component
     }
 
     public function search() {
-        $this->emit("search", $this->value);
+        $this->emitTo("dynamic-table", "changeSearch", $this->value);
     }
 }

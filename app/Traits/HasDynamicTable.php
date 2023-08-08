@@ -3,8 +3,8 @@
 namespace App\Traits;
 
 use App\DTO\DynamicTableDTO;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Schema;
 
 
 /**
@@ -13,29 +13,41 @@ use Illuminate\Support\Facades\DB;
  */
 trait HasDynamicTable
 {
-    static function getDtoColumnDefinitions()
+    static function getDtoColumnDefinitions(): array
     {
         $arrayDefinition = [];
+
+        if (empty(static::$fillableWithDefinitions)) {
+            $model = new static;
+            $columns = array_filter(Schema::getColumnListing($model->getTable()), function ($item) use ($model) {
+                return !in_array($item, $model->getHidden());
+            });
+            dd($columns);
+        }
+
         foreach (static::$fillableWithDefinitions as $columnName => $definition) {
             $arrayDefinition[] = [
                 'columnName' => $columnName,
-                'columnDescription' => $definition
+                'columnDescription' => $definition['columnDescription'],
+                'columnRules' => $definition['columnRules'],
+                'allowEdit' => $definition['allowEdit'] ?? true
             ];
         }
         return DynamicTableDTO::generateByArrayDefinition($arrayDefinition);
     }
 
-    public function getTD()
+    public function getTD(): string
     {
         $strReturn = "";
         foreach(static::$fillableWithDefinitions as $columnName => $_) {
-            $strReturn .= "<td class='px-6 py-4'> {$this->{$columnName}} </td>";
+            if (in_array($columnName, $this->getHidden())) continue;
+            $strReturn .= "<td class='p-4'> {$this->{$columnName}} </td>";
         }
 
         if (static::$useRecordActions) {
             $strReturn .= <<<HTML
-            <td class="px-6 py-4">
-                  <a href="#" class="p-2" >
+            <td class="p-4">
+                  <a href="#" class="p-2" onclick="onEditClick({$this->id})">
                     <i class="fas fa-edit">
                     </i>
                   </a>
@@ -48,16 +60,23 @@ HTML;
         return $strReturn;
     }
 
-    static function filterBySearchString(string $searchString): \Illuminate\Support\Collection
+    public function scopeFilterBySearchString($query,string $searchString, $orderBy = [], $orderDirection = 'asc')
     {
-       $table = (new static)->getTable();
-       return DB::table($table)->where(function (Builder $query) use ($searchString) {
+        if (empty($orderBy)) {
+            $orderBy = Arr::map(static::getDtoColumnDefinitions(), fn ($item) => $item->getColumnName());
+        }
+        $q = $query->where(function ($query) use ($searchString) {
            $count = 0;
            foreach(static::$fillableWithDefinitions as $columnName => $_) {
+               if (in_array($columnName, $this->getHidden())) continue;
                $method = $count === 0 ? "where" : "orWhere";
                $count++;
                $query->{$method}($columnName, "ILIKE", "$searchString%");
            }
-       })->get();
+        });
+        foreach ($orderBy as $order) {
+            $q->orderBy($order, $orderDirection);
+        }
+        return $q;
     }
 }

@@ -4,7 +4,9 @@
 
 
 @section("content")
-    @livewire('crud', ['modelClass' =>  \App\Models\User:: class])
+    <div>
+        @livewire('crud', ['modelClass' =>  \App\Models\User::class, 'routineTitle' => 'Users'], key(Str::random()))
+    </div>
 @endsection
 
 @section("footer_scripts")
