@@ -3,12 +3,16 @@
 namespace App\Http\Livewire;
 
 use App\Traits\WithDynamicTable;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Crud extends Component
 {
+
+    use WithPagination;
     protected $listeners = ['onEditClick' => 'toggleModalAddEdit'];
 
     /** @var WithDynamicTable $modelClass */
@@ -29,13 +33,20 @@ class Crud extends Component
         $this->extractRoutes();
     }
 
+
+    public function hydrate()
+    {
+        $this->createProps();
+        $this->extractRoutes();
+    }
+
     public function render() {
         return view("livewire.crud.crud");
     }
 
     public function toggleModalAddEdit($register = null)
     {
-        // already editing, so return
+        $this->keepRenderedChildren();        // already editing, so return
         if ($this->modalAddEdit) return;
         $this->{$this->modelLower} = $this->modelClass::find($register) ?? new $this->modelClass;
 
@@ -67,7 +78,6 @@ class Crud extends Component
         $this->closeModalAddEdit();
         $this->dispatchBrowserEvent('registerSaved');
     }
-
     private function extractRoutes()
     {
         $appRoutes = Route::getRoutes()->getRoutes();

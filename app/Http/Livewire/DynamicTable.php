@@ -12,7 +12,6 @@ use Livewire\WithPagination;
 class DynamicTable extends Component {
 
     use WithPagination;
-
     public array $orderDirectionOptions = [];
 
     protected $listeners = ['changeSearch' => 'updateSearch'];
@@ -42,6 +41,7 @@ class DynamicTable extends Component {
     }
 
     public function hydrate() {
+
         $this->tableColumns = $this->modelClass::getDtoColumnDefinitions();
         $this->orderByOptions = Arr::map($this->tableColumns, fn ($item) => ['name' => $item->getColumnDescription(), 'value' => $item->getColumnName()]);
     }

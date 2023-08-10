@@ -41,7 +41,7 @@ class User extends Authenticatable implements WithDynamicTable
         ],
         'password' => [
             "columnDescription" => "Password",
-            "columnRules" => ""
+            "columnRules" => "required|minlength:8"
         ]
     ];
 
@@ -92,7 +92,7 @@ class User extends Authenticatable implements WithDynamicTable
             ],
             'password' => [
                 "columnDescription" => "Password",
-                "columnRules" => ""
+                "columnRules" => "required|minlength:8"
             ]
         ];
     }
