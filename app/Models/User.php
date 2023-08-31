@@ -14,6 +14,7 @@ class User extends Authenticatable implements WithDynamicTable
 {
     use HasApiTokens, HasFactory, Notifiable, HasDynamicTable;
 
+    const TABLE = 'users';
     /**
      * The attributes that are mass assignable.
      *
@@ -38,10 +39,6 @@ class User extends Authenticatable implements WithDynamicTable
         'email' => [
             "columnDescription" => "E-mail",
             "columnRules" => "required|email|unique:users,email"
-        ],
-        'password' => [
-            "columnDescription" => "Password",
-            "columnRules" => "required|minlength:8"
         ]
     ];
 
@@ -89,10 +86,6 @@ class User extends Authenticatable implements WithDynamicTable
                     if ($register?->{$this->primaryKey}) $rule .= ", " . $register?->{$this->primaryKey};
                     return $rule;
                 }
-            ],
-            'password' => [
-                "columnDescription" => "Password",
-                "columnRules" => "required|minlength:8"
             ]
         ];
     }
