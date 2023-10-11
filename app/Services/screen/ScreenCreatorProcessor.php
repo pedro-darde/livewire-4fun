@@ -7,6 +7,7 @@ use App\Models\ScreenFields;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class ScreenCreatorProcessor
 {
@@ -35,7 +36,7 @@ class ScreenCreatorProcessor
         try {
 
             $screen = new Screen();
-            $screen->name = $inputPost['name'];
+            $screen->name = Str::ucfirst($inputPost['table']);
             $screen->table = $inputPost['table'];
             $screen->title = $inputPost['title'];
             $screen->icon = $inputPost['icon'];
@@ -51,23 +52,51 @@ class ScreenCreatorProcessor
                 return $fieldModel;
             }, $inputPost['fields']);
 
+            $pkField =  new ScreenFields();
+            $pkField->config = json_encode([
+                "name" => $screen->pk_name,
+                "label" => "Identifier",
+                "type" => "",
+                "mask" => "",
+                "placeholder" => "",
+                "options" => [],
+                "default" => "",
+                "description" => "",
+                "required" => false,
+                "rules" => [],
+                "disabled" => true,
+                "visible" => false,
+                "searchUrl" => "",
+                "multiple" => false,
+                "useAjaxToLoadOptions" => false,
+                "useIndex" => false
+            ]);
+            $pkField->screen_id  = $screen->id;
+
+            $fieldsCollection[] = $pkField;
             $screen->fields()->createMany($fieldsCollection);
 
-            $this->createDynamicTable($screen, $inputPost['fields']);
 
+            $this->createDynamicTable($screen, $inputPost['fields']);
             DB::commit();
         } catch (\Exception $ex) {
             DB::rollBack();
+            throw $ex;
         }
     }
 
     private function createDynamicTable(Screen $screen, array $fields)
     {
         $sql = "CREATE TABLE {$screen->table} (
-            {$screen->pk_name} SERIAL PRIMARY KEY,
+            {$screen->pk_name} SERIAL PRIMARY KEY
         ";
 
-        $sql .= $this->getCreateFieldsString($fields);
+        if (count($fields)) {
+            $sql .= $this->getCreateFieldsString($fields);
+        }
+
+        $sql .= ")";
+        DB::statement($sql);
     }
 
     private function getCreateFieldsString($fields)
@@ -75,10 +104,10 @@ class ScreenCreatorProcessor
         $sql = '';
         foreach ($fields as $field) {
             $config = $field['config'];
-            $sql .= ' ' . $config['name'] . ' ' . $this->getSqlType($config['type']) . ',';
+            $sql .= $config['name'] . ' ' . $this->getSqlType($config['type']) . ',';
 
             if ($config['required']) {
-                $sql .= ' NOT NULL,';
+                $sql .= ' NOT NULL ';
             }
 
             if ($config['default']) {
@@ -102,7 +131,7 @@ class ScreenCreatorProcessor
 
         foreach($references as $reference) {
             [
-                'table' => $table,
+                'screen' => $table,
                 'field' => $field,
             ] = $reference;
 

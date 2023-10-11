@@ -86,7 +86,7 @@ const saveRegister = async () => {
         toast('Registro actualizado correctamente')
         currentEditRegister.value = null
     } else {
-        const response = await processRequest(axios.post(`/${props.table}`, currentEditRegister.value))
+        const response = await processRequest(`/${props.table}`, 'post', currentEditRegister.value)
         if (response.hasErrors()) {
             const errors = response.getErrors(true)
             fireError('An error has ocurred', errors)
@@ -119,7 +119,6 @@ const routineTitle = computed(() => {
 </script>
 
 <template>
-    <Layout>
         <div class="p-5 flex flex-row justify-between">
             <h1 class="text-xl font-bold" > {{ routineTitle }}</h1>
             <button class="font-bold border-black rounded-lg bg-indigo-500 p-2 text-center" @click="createRegister">
@@ -137,41 +136,6 @@ const routineTitle = computed(() => {
 
             </DynamicTable>
         </div>
-
-        <Modal @close="closePopup()" v-if="open">
-            <template #title>
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                    {{ modalTitle }}
-                </h3>
-            </template>
-            <template #body>
-               <div class="p-5">
-                     <div class="flex flex-col gap-2">
-                         <template v-for="column in columnDefinitions">
-                             <div class="flex flex-col" v-if="column.allowEdit">
-                                 <label :for="column.columnName" class="text-sm font-semibold text-gray-700 dark:text-gray-400">{{ column.columnDescription }}</label>
-                                 <input
-                                     :id="column.columnName"
-                                     type="text"
-                                     class="px-4 py-2 border rounded-md dark:bg-gray-800 dark:text-gray-300"
-                                     v-model="currentEditRegister[column.columnName]"
-                                 />
-                             </div>
-                         </template>
-                     </div>
-               </div>
-            </template>
-            <template #button-save>
-                <button
-                    data-modal-hide="defaultModal"
-                    type="button"
-                    @click="saveRegister()"
-                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                    Save
-                </button>
-            </template>
-        </Modal>
-    </Layout>
 </template>
 
 <style scoped>
