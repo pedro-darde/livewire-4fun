@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\DynamicScreenController;
+use App\Http\Controllers\IconController;
+use App\Http\Controllers\PatientController;
+use App\Http\Controllers\ScreenController;
+use App\Http\Controllers\SelectController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,4 +25,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-Route::get('/icons', [\App\Http\Controllers\IconController::class, 'index']);
+Route::get('/icons', [IconController::class, 'index']);
+Route::get('/screens', [ScreenController::class, 'all']);
+
+
+Route::prefix('dynamic')->group(function () {
+    Route::post('/getOptions/{table}', [SelectController::class, 'dynamicItems']);
+    Route::post('/save', [DynamicScreenController::class, 'save']);
+});
+
+Route::get("/patients/loadMore", [PatientController::class, 'loadMore']);
+Route::get("/appointments/loadMore", [AppointmentController::class, 'loadMore']);
+
+

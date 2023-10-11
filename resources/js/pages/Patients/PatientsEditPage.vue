@@ -6,6 +6,14 @@ import {useAlert} from "../../composables/useAlert";
 import {usePage} from "@inertiajs/vue3";
 import {router} from '@inertiajs/core';
 import Layout from "../../components/layout/Layout.vue";
+import PatientsEdit from "../../components/patients/PatientsEdit.vue";
+
+defineProps({
+    patient: {
+        type: Object,
+        required: false
+    }
+})
 
 const {
     fireError, toast
@@ -14,11 +22,11 @@ const page = usePage()
 
 async function requestSave(register) {
     // page.
-    const response = await (new RequestProcessor('/patients', 'post', register)).process()
+    const response = await (new RequestProcessor(`/patients/${register.id}`, 'put', register)).process()
     if (response.hasErrors()) {
         fireError('An error has ocurred', response.getErrors(true))
     } else {
-        toast('Patient created successfully', 'success')
+        toast('Patient edited successfully', 'success')
         router.visit('/patients')
     }
 }
@@ -28,9 +36,9 @@ async function requestSave(register) {
     <Layout>
         <div class="flex items-center justify-center flex-column mt-5">
             <div class="flex flex-row justify-between">
-                <h1 class="text-xl font-bold text-center">Criar Paciente</h1>
+                <h1 class="text-xl font-bold text-center">Editar Paciente {{ patient.name }}</h1>
             </div>
-            <PatientsCreate @save="requestSave"></PatientsCreate>
+            <PatientsEdit @save="requestSave" :patient="patient"></PatientsEdit>
         </div>
     </Layout>
 </template>

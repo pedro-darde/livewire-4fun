@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ScreenCreator;
+use App\Models\DynamicModel;
 use App\Models\Screen;
+use App\Services\screen\BaseScreenService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Concerns\ValidatesAttributes;
 use Inertia\Inertia;
@@ -19,21 +23,21 @@ class ScreenController extends Controller
     {
         $validatorClass = new ReflectionClass(ValidatesAttributes::class);
         $defaultRules = collect($validatorClass->getMethods(ReflectionMethod::IS_PUBLIC))
-            ->filter(function($method){
-                return Str::startsWith($method->name,'validate');
+            ->filter(function ($method) {
+                return Str::startsWith($method->name, 'validate');
             })
-            ->map(function(ReflectionMethod $method){
+            ->map(function (ReflectionMethod $method) {
                 return [
                     'name' => str_replace('validate_', '', Str::snake($method->name)),
                     'about' => $method->getDocComment(),
                     'class' => $method->class,
                 ];
-        })->values();
+            })->values();
 
-       return Inertia::render('ScreenGenerator', [
-           'screens' => Screen::with('fields')->get(),
-           'defaultRules' => $defaultRules->all(),
-       ]);
+        return Inertia::render('ScreenGenerator', [
+            'screens' => Screen::with('fields')->get(),
+            'defaultRules' => $defaultRules->all(),
+        ]);
     }
 
     /**
@@ -41,7 +45,6 @@ class ScreenController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -49,9 +52,9 @@ class ScreenController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'screen.config' => 'required',
+        ScreenCreator::dispatchSync($request->all());
+        return response()->json([
+            'message' => 'Screen created successfully'
         ]);
     }
 
@@ -86,4 +89,23 @@ class ScreenController extends Controller
     {
         //
     }
+
+    public function getDynamic(string $screenUrl)
+    {
+        $screen = Screen::with(['fields'])->where('url', $screenUrl)->firstOrFail();
+        return Inertia::render('DynamicScreen', [
+            'screen' => $screen,
+            'registers' => DynamicModel::getRegisters($screen->table, $screen),
+            'columnDefinitions' => DynamicModel::getColumnDefinitions($screen->table)
+        ]);
+    }
+
+    public function all()
+    {
+        return response()->json([
+            'screens' => BaseScreenService::getExistingScreens()
+        ]);
+    }
+
+
 }

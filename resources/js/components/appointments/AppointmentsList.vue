@@ -6,162 +6,141 @@ import {router} from '@inertiajs/core'
 import _ from 'lodash'
 
 const {
-    fireAlertDelete,
-    toast,
-    fireError
+  fireAlertDelete,
+  toast,
+  fireError
 } = useAlert()
 const props = defineProps({
-    patients: {
-        type: Object,
-        required: true
-    }
+  appointments: {
+    type: Object,
+    required: true
+  }
 })
 
 const columnDefinitions = [
-    {
-        columnName: "id",
-        columnDescription: "ID",
-        extraProps: {}
-    },
-    {
-        columnName: "name",
-        columnDescription: "Nome",
-        extraProps: {}
-    },
-    {
-        columnName: "last_name",
-        columnDescription: "Sobrenome",
-        extraProps: {}
-    },
-    {
-        columnName: "nickname",
-        columnDescription: "Apelido",
-        extraProps: {}
-    },
-    {
-        columnName: "email",
-        columnDescription: "E-mail",
-        extraProps: {}
-    },
-    {
-        columnName: "phone",
-        columnDescription: "Telefone",
-        extraProps: {}
-    },
-    {
-        columnName: "rg",
-        columnDescription: "RG",
-        extraProps: {}
-    },
-    {
-        columnName: "cpf",
-        columnDescription: "CPF",
-        extraProps: {}
-    },
-    {
-        columnName: "birth_date",
-        columnDescription: "Data de Nascimento",
-        extraProps: {}
-    }
+  {
+    columnName: "id",
+    columnDescription: "ID",
+    extraProps: {}
+  },
+  {
+    columnName: "start",
+    columnDescription: "Começa",
+    extraProps: {}
+  },
+  {
+    columnName: "end",
+    columnDescription: "Termina",
+    extraProps: {}
+  },
+  {
+    columnName: "about",
+    columnDescription: "Sobre",
+    extraProps: {}
+  },
+  {
+    columnName: "creatorName",
+    columnDescription: "Usuário"
+  }
 ]
 
 const modelProps = {
-    crudActions: {
-        'update': true,
-        'delete': true
-    }
+  crudActions: {
+    'update': true,
+    'delete': true
+  }
 }
 
 
 const emit = defineEmits(['refresh'])
-const registers = ref(props.patients)
+const registers = ref(props.appointments)
 const onDelete = async (register) => {
-    const {isConfirmed} = await fireAlertDelete()
+  const {isConfirmed} = await fireAlertDelete()
 
-    if (isConfirmed) {
-        try {
-            await axios.delete(`/patients/${register.id}`)
-            toast('Paciente excluído com sucesso', 'success')
-            console.log(registers)
-            loadMoreItens({
-                page: registers.value.page,
-                itemsPerPage: registers.value.per_page,
-                sortBy: '',
-                searchString: lastSearchString.value
-            })
-        } catch (e) {
-            fireError(e)
-        }
+  if (isConfirmed) {
+    try {
+      await axios.delete(`/appointments/${register.id}`)
+      toast('Paciente excluído com sucesso', 'success')
+      console.log(registers)
+      loadMoreItens({
+        page: registers.value.page,
+        itemsPerPage: registers.value.per_page,
+        sortBy: '',
+        searchString: lastSearchString.value
+      })
+    } catch (e) {
+      fireError(e)
     }
+  }
 }
 
 const lastSearchString = ref('')
 
 const onUpdate = (register) => {
-    router.visit(`/patients/${register.id}`)
+  router.visit(`/appointments/${register.id}`)
 }
 
 const emitCrudEvent = ({crudOperation, register}) => {
-    if (crudOperation === 'delete') {
-        onDelete(register)
-    } else if (crudOperation === 'update') {
-        onUpdate(register)
-    }
+  if (crudOperation === 'delete') {
+    onDelete(register)
+  } else if (crudOperation === 'update') {
+    onUpdate(register)
+  }
 }
 
 const requesting = ref(false)
 
 
-const requestPatients = async ({page, itemsPerPage, sortBy, searchString}) => {
-    const [{
-        key,
-        order
-    }] = sortBy.length ? sortBy : [{key: '', order: ''}]
-    requesting.value = true
-    const response = await axios.get('api/patients/loadMore', {
-        params: {
-            page,
-            per_page: itemsPerPage,
-            search: searchString,
-            order_by: key,
-            order_direction: order
-        }
-    })
-
-    const patients = response.data.patients
-
-    if (itemsPerPage === -1) {
-        registers.value = {
-            per_page: -1,
-            total: patients.length,
-            data: patients,
-
-        }
-    } else {
-        registers.value = patients
+const requestAppointments = async ({page, itemsPerPage, sortBy, searchString}) => {
+  const [{
+    key,
+    order
+  }] = sortBy.length ? sortBy : [{key: '', order: ''}]
+  requesting.value = true
+  const response = await axios.get('api/appointments/loadMore', {
+    params: {
+      page,
+      per_page: itemsPerPage,
+      search: searchString,
+      order_by: key,
+      order_direction: order
     }
-    requesting.value = false
+  })
+
+  const appointments = response.data.appointments
+
+  if (itemsPerPage === -1) {
+    registers.value = {
+      per_page: -1,
+      total: appointments.length,
+      data: appointments,
+
+    }
+  } else {
+    registers.value = appointments
+  }
+  requesting.value = false
 }
 const loadMoreItens = async ({page, itemsPerPage, sortBy, searchString}) => {
-    lastSearchString.value = searchString
-    await requestPatients({page, itemsPerPage, sortBy, searchString})
+  lastSearchString.value = searchString
+  await requestAppointments({page, itemsPerPage, sortBy, searchString})
 }
 
 </script>
 
 <template>
-    <div>
-        <DynamicTable :registers="registers"
-                      :column-definitions="columnDefinitions"
-                      table="patient"
-                      :model-props="modelProps"
-                      @crud-event="emitCrudEvent"
-                      :use-api-pagination="true"
-                      @load-more="loadMoreItens"
-                      :requesting-items="requesting"
-                      :show-order-options="false"
-        />
-    </div>
+  <div>
+    <DynamicTable :registers="registers"
+                  :column-definitions="columnDefinitions"
+                  table="appointment"
+                  :model-props="modelProps"
+                  @crud-event="emitCrudEvent"
+                  :use-api-pagination="true"
+                  @load-more="loadMoreItens"
+                  :requesting-items="requesting"
+                  :show-order-options="false"
+    />
+  </div>
 </template>
 
 <style scoped>

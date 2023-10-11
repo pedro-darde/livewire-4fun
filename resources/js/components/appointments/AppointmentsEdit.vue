@@ -1,26 +1,26 @@
 <script setup>
-import CreateEditPatientComponent from "./CreateEditPatientComponent.vue";
+import CreateEditPatientComponent from "./CreateEditAppointmentComponent.vue";
 
 const props = defineProps({
-    patient: {
-        type: Object,
-        required: false
-    }
+  patient: {
+    type: Object,
+    required: false
+  }
 })
 
 const emit = defineEmits(['save'])
 
 const patientToEdit = {
-    ...props.patient
+  ...props.patient
 }
 
 const emitSave = (patient) => {
-    emit('save', patient)
+  emit('save', patient)
 }
 </script>
 
 <template>
-    <CreateEditPatientComponent @save="emitSave" :current-patient="patientToEdit"/>
+  <CreateEditPatientComponent @save="emitSave" :current-patient="patientToEdit"/>
 </template>
 
 <style scoped>

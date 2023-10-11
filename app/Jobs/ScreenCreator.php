@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Services\screen\ScreenCreatorProcessor;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -16,16 +16,18 @@ class ScreenCreator implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct()
+
+    private array $inputPost;
+    public function __construct(array $inputPost)
     {
-        //
+        $this->inputPost = $inputPost;
     }
 
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(ScreenCreatorProcessor $processor): void
     {
-        //
+       $processor->process($this->inputPost);
     }
 }

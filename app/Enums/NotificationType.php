@@ -1,8 +1,10 @@
 <?php
 
-namespace App;
+namespace App\Enums;
 
 enum NotificationType
 {
-
+    case APPOINTMENT;
+    case MEETING;
+    case REMINDER;
 }

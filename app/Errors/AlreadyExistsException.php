@@ -2,7 +2,10 @@
 
 namespace App\Errors;
 
-class AlreadyExistsExeption
+class AlreadyExistsException extends \Exception
 {
-
+    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
 }

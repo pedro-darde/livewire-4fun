@@ -1,9 +1,13 @@
-import { AxiosResponse } from 'axios'
+import {AxiosResponse} from 'axios'
 import {Str} from "./Str";
+
 export class ResponseAdapter {
     private statusCode: number
+    private responseBody: AxiosResponse
+
     constructor(private readonly response: AxiosResponse) {
         this.statusCode = response.status;
+        this.responseBody = response.data;
     }
 
     getStatusCode() {
@@ -40,5 +44,17 @@ export class ResponseAdapter {
     hasErrors() {
         console.log(this.statusCode)
         return this.statusCode > 301
+    }
+
+    get responseHeaders() {
+        return this.response.headers
+    }
+
+    getBody() {
+        return this.responseBody
+    }
+
+    getBodyData() {
+        return this.responseBody.data
     }
 }

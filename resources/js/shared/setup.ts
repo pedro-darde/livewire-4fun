@@ -2,10 +2,15 @@ import {createInertiaApp} from "@inertiajs/vue3";
 import axios from "axios";
 import {createApp, h, reactive} from "vue";
 import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
+import {createVuetify} from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import '@mdi/font/css/materialdesignicons.css'
+import DateFnsAdapter from '@date-io/date-fns';
+import ptBR from 'date-fns/locale/pt-BR'
+import en from 'date-fns/locale/en-US'
+import {vMaska} from "maska"
+
 
 interface InertiaAppProps {
     pages: Record<string, any>;
@@ -26,10 +31,22 @@ export function initInertiaApp({pages, id, mixin, store, onSetup}: InertiaAppPro
             const appInstance = createApp({render: () => h(App, props)})
                 .use(plugin);
 
+            appInstance.directive('maska', vMaska)
+
             const vuetify = createVuetify({
-              components,
-              directives,
-              
+                components,
+                directives: {
+                    ...directives,
+                    maska: vMaska
+                },
+                date: {
+                    adapter: DateFnsAdapter,
+                    locale: {
+                        en,
+                        'pt-BR': ptBR
+                    },
+                },
+
             })
             appInstance.use(vuetify)
 
@@ -62,8 +79,7 @@ export function initAuthInterceptor(store) {
             try {
                 if (response.data.props && response.data.props.auth && response.data.props.auth.user)
                     store.currentUser = response.data.props.auth.user
-            }
-            catch (e) {
+            } catch (e) {
                 console.log(e);
             }
             return response;

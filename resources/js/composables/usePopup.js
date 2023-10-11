@@ -5,12 +5,19 @@ export function usePopup() {
     const togglePopup = () => {
         open.value = !open.value
     }
+    const closePopup = () => {
+        console.log('estou fechando o popup')
+        open.value = false
+    }
 
-    const closePopup = () => { open.value = false }
+    const openPopup = () => {
+        open.value = true
+    }
 
     return {
         open,
         togglePopup,
-        closePopup
+        closePopup,
+        openPopup
     }
 }
