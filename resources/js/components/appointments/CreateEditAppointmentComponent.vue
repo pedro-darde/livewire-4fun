@@ -1,14 +1,13 @@
-<script setup >
+<script setup>
 
-import { LOCALE_FORMATS, useDateFormatter } from "../../composables/useDateFormatter.js";
-import {computed, ref} from "vue";
-import { router, usePage } from "@inertiajs/vue3";
-import { onMounted } from "vue";
-import { axiosInstance } from "../../shared/axios";
+import {LOCALE_FORMATS, useDateFormatter} from "../../composables/useDateFormatter.js";
+import {computed, onMounted, ref} from "vue";
+import {router, usePage} from "@inertiajs/vue3";
+import {axiosInstance} from "../../shared/axios";
 import useRequest from "../../composables/useRequest";
 import {RecurrenceType} from "../../shared/RecurrenceType";
 import {DAYS_OF_WEEK} from "../../util/constants.js";
-import {REQUIRED} from "../../util/formRules.js";
+import {MIN_LENGTH, REQUIRED} from "../../util/formRules.js";
 import {useAlert} from "../../composables/useAlert.js";
 
 const props = defineProps({
@@ -48,8 +47,8 @@ const appointment = ref(props.currentAppointment ?? {
   useDefaultRecurrence: true,
   useCustomRecurrence: false,
   numberOfRecurrences: 1,
-  useDefaultRecurrenceMonth: false,
-  useCustomRecurrenceMonth: true,
+  useDefaultRecurrenceWeek: false,
+  useCustomRecurrenceWeek: true,
   recurrenceWeeklyDays: [{
     day: 0,
     start: '',
@@ -106,6 +105,7 @@ const maskOnlyTime = {
 
 const formRef = ref(null)
 const emitSave = () => {
+    console.log(formWeekly.value)
   if (formRef.value) {
     if (appointment.value.recurrence_type.value === RecurrenceType.WEEKLY) {
       const groupedByDayAndStart = appointment.value.recurrenceWeeklyDays.reduce((acc, curr) => {
@@ -185,8 +185,7 @@ const requestPatients = async (searchString = '', shouldChangePage = true) => {
     }
   })
 
-  const patients = response.data.patients
-  patientsOptions.value = patients
+  patientsOptions.value = response.data.patients
   if (shouldChangePage) {
     currentPagePatients.value = patientsOptions.value.current_page
   }
@@ -229,8 +228,8 @@ const getTextRecurrentOption = computed(() => {
 
 const handleClickUseDefaultRecurrence = (isOnMonth = false) => {
     if (isOnMonth) {
-      appointment.value.useDefaultRecurrenceMonth = !appointment.value.useDefaultRecurrenceMonth
-      appointment.value.useCustomRecurrenceMonth = false
+      appointment.value.useDefaultRecurrenceWeek = !appointment.value.useDefaultRecurrenceWeek
+      appointment.value.useCustomRecurrenceWeek = false
       return
     }
     appointment.value.useDefaultRecurrence = !appointment.value.useDefaultRecurrence
@@ -239,8 +238,8 @@ const handleClickUseDefaultRecurrence = (isOnMonth = false) => {
 
 const handleClickUseCustomRecurrence = (isOnMonth = false) => {
     if (isOnMonth) {
-      appointment.value.useDefaultRecurrenceMonth = !appointment.value.useDefaultRecurrenceMonth
-      appointment.value.useCustomRecurrenceMonth = false
+      appointment.value.useDefaultRecurrenceWeek = !appointment.value.useDefaultRecurrenceWeek
+      appointment.value.useCustomRecurrenceWeek = false
       return
     }
     appointment.value.useCustomRecurrence = !appointment.value.useCustomRecurrence
@@ -300,6 +299,8 @@ const isLastWeekDay = (index) => {
   if (appointment.value.recurrenceWeeklyDays.length === 1) return false
   return appointment.value.recurrenceWeeklyDays.length - 1 === index
 }
+
+const formWeekly = ref(false)
 
 </script>
 
@@ -371,11 +372,11 @@ const isLastWeekDay = (index) => {
                                </v-col>
                            </template>
                          <template v-else>
-                             <v-col :cols="appointment.useDefaultRecurrenceMonth ? 8: 12">
-                                <v-checkbox  v-model="appointment.useDefaultRecurrenceMonth" @click="handleClickUseDefaultRecurrence(true)" label="Apenas Cadastrar quantidade de consultas semanais">
+                             <v-col :cols="appointment.useDefaultRecurrenceWeek ? 8: 12">
+                                <v-checkbox  v-model="appointment.useDefaultRecurrenceWeek" @click="handleClickUseDefaultRecurrence(true)" label="Apenas Cadastrar quantidade de consultas semanais">
                                 </v-checkbox>
                              </v-col>
-                           <v-col cols="4" v-if="appointment.useDefaultRecurrenceMonth">
+                           <v-col cols="4" v-if="appointment.useDefaultRecurrenceWeek">
                              <v-text-field
                                  type="number"
                                  label="Qtd. Eventos"
@@ -387,28 +388,30 @@ const isLastWeekDay = (index) => {
                               <v-col cols="12">
                                   <v-checkbox :label="`Opções customizadas de recorência
                                               (${appointment.recurrence_type.shortDesc})`"
-                                              v-model="appointment.useCustomRecurrenceMonth" @click="handleClickUseCustomRecurrence(true)">
+                                              v-model="appointment.useCustomRecurrenceWeek" @click="handleClickUseCustomRecurrence(true)">
                                   </v-checkbox>
                               </v-col>
-                              <template v-if="appointment.useCustomRecurrenceMonth">
+                              <template v-if="appointment.useCustomRecurrenceWeek">
                                 <v-col cols="12">
-                                  <v-row v-for="(weekConfig, index) in appointment.recurrenceWeeklyDays">
-                                    <v-col cols="4">
-                                      <v-select v-model="weekConfig.day" :items="DAYS_OF_WEEK" item-title="text" item-value="value" label="Dia" variant="solo-filled"></v-select>
-                                    </v-col>
-                                    <v-col cols="3">
-                                      <v-text-field v-model="weekConfig.start" label="Hora de começo" variant="solo-filled" v-maska:[maskOnlyTime]></v-text-field>
-                                    </v-col>
-                                    <v-col cols="3">
-                                      <v-text-field v-model="weekConfig.end" label="Hora de fim" variant="solo-filled" v-maska:[maskOnlyTime]></v-text-field>
-                                    </v-col>
-                                  <v-col cols="1">
-                                      <v-btn icon="mdi-plus" @click="addWeekDay()"></v-btn>
-                                  </v-col>
-                                    <v-col cols="1">
-                                      <v-btn icon="mdi-delete" @click="removeWeekDay(index)" v-if="isLastWeekDay(index)"></v-btn>
-                                  </v-col>
-                                </v-row>
+                                    <v-form v-model="formWeekly">
+                                          <v-row v-for="(weekConfig, index) in appointment.recurrenceWeeklyDays">
+                                                    <v-col cols="4">
+                                                      <v-select v-model="weekConfig.day" :items="DAYS_OF_WEEK" item-title="text" item-value="value" label="Dia" variant="solo-filled" :rules="REQUIRED('Dia')"></v-select>
+                                                    </v-col>
+                                                    <v-col cols="3">
+                                                      <v-text-field v-model="weekConfig.start" label="Hora de começo" variant="solo-filled" v-maska:[maskOnlyTime] :rules="[...REQUIRED('Hora de começo'), ...MIN_LENGTH('Hora de começo', 5)]"></v-text-field>
+                                                    </v-col>
+                                                    <v-col cols="3">
+                                                      <v-text-field v-model="weekConfig.end" label="Hora de fim" variant="solo-filled" v-maska:[maskOnlyTime] :rules="[...REQUIRED('Hora de fim'), ...MIN_LENGTH('Hora de fim', 5)]"></v-text-field>
+                                                    </v-col>
+                                                  <v-col cols="1">
+                                                      <v-btn icon="mdi-plus" @click="addWeekDay()"></v-btn>
+                                                  </v-col>
+                                                    <v-col cols="1">
+                                                      <v-btn icon="mdi-delete" @click="removeWeekDay(index)" v-if="isLastWeekDay(index)"></v-btn>
+                                                  </v-col>
+                                            </v-row>
+                                    </v-form>
                                 </v-col>
                               </template>
                          </template>

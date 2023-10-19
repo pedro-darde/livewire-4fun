@@ -5,6 +5,9 @@ namespace App\Services\Appointment;
 abstract class BaseAppointmentService
 {
     protected array $appointmentData;
+    const MAX_WEEKLY_APPOINTMENTS = 8;
+    const MAX_MONTHLY_APPOINTMENTS = 6;
+    const MAX_BIWEEKLY_APPOINTMENTS = 28;
 
     abstract public function execute(): void;
 
