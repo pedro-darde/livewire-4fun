@@ -28,18 +28,19 @@ class PatientController extends Controller
         $direction = $request->query("order_direction") ?? "asc";
 
         $patients = Patient::query()
-            ->when(isset($perPage) && $perPage > 0,
-                fn($query) => $query
+            ->when(
+                isset($perPage) && $perPage > 0,
+                fn ($query) => $query
                     ->whereRaw("(name like '%$searchString%' OR last_name LIKE '%$searchString%' or cpf LIKE '%$searchString%' OR ('$searchString' = ''))")
                     ->orderBy($orderBy, $direction)
                     ->paginate($perPage),
-                fn($query) => $query
+                fn ($query) => $query
                     ->whereRaw("(name like '%$searchString%' OR last_name LIKE '%$searchString%' or cpf LIKE '%$searchString%' OR ($searchString = $searchString))")
                     ->orderBy($orderBy, $direction)
                     ->get()
             );
         return response()->json([
-            'patients' => $patients
+            'patients' => $patients,
         ]);
     }
 
@@ -59,6 +60,7 @@ class PatientController extends Controller
 
     public function show(Patient $patient): InertiaResponse
     {
+        $patient->load(['appointments']);
         return Inertia::render('Patients/PatientsEditPage', [
             'patient' => $patient
         ]);

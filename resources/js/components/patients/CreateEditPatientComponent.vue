@@ -1,8 +1,8 @@
 <script setup>
 
-import {useDateFormatter} from "../../composables/useDateFormatter.js";
-import {ref} from "vue";
-import {router} from "@inertiajs/vue3";
+import { useDateFormatter } from "../../composables/useDateFormatter.js";
+import { ref } from "vue";
+import { router } from "@inertiajs/vue3";
 
 const props = defineProps({
     currentPatient: {
@@ -11,7 +11,7 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['save'])
+const emit = defineEmits(['save', 'next'])
 const {
     toDatabaseDate,
     createFromFormat,
@@ -102,50 +102,47 @@ const rules = {
         <v-sheet class="p-5 m-5 rounded-md pt-8" elevation="5">
             <v-row>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="patient.name" label="Nome" required
-                                  variant="solo-filled" :rules="rules.name"></v-text-field>
+                    <v-text-field v-model="patient.name" label="Nome" required variant="solo-filled"
+                        :rules="rules.name"></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="patient.last_name" label="Sobrenome" required
-                                  variant="solo-filled" :rules="rules.last_name"></v-text-field>
+                    <v-text-field v-model="patient.last_name" label="Sobrenome" required variant="solo-filled"
+                        :rules="rules.last_name"></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="patient.nickname" label="Apelido" required
-                                  variant="solo-filled"></v-text-field>
+                    <v-text-field v-model="patient.nickname" label="Apelido" required variant="solo-filled"></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="patient.email" label="E-mail" required
-                                  variant="solo-filled" :rules="rules.email"></v-text-field>
+                    <v-text-field v-model="patient.email" label="E-mail" required variant="solo-filled"
+                        :rules="rules.email"></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="patient.phone" label="Telefone" required
-                                  variant="solo-filled" v-maska:[maskTelefone]
-                                  :rules="rules.telefone"></v-text-field>
+                    <v-text-field v-model="patient.phone" label="Telefone" required variant="solo-filled"
+                        v-maska:[maskTelefone] :rules="rules.telefone"></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="patient.cpf" label="CPF" required
-                                  variant="solo-filled" v-maska:[maskCPF] :rules="rules.cpf"></v-text-field>
+                    <v-text-field v-model="patient.cpf" label="CPF" required variant="solo-filled" v-maska:[maskCPF]
+                        :rules="rules.cpf"></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="patient.rg" label="RG" required variant="solo-filled"
-                                  v-maska:[maskRG]></v-text-field>
+                        v-maska:[maskRG]></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="patient.birth_date" label="Data de Nascimento" required
-                                  variant="solo-filled" title="Data de nascimento"
-                                  v-maska:[maskDate] :rules="rules.birth_date"></v-text-field>
+                    <v-text-field v-model="patient.birth_date" label="Data de Nascimento" required variant="solo-filled"
+                        title="Data de nascimento" v-maska:[maskDate] :rules="rules.birth_date"></v-text-field>
 
                 </v-col>
             </v-row>
             <v-row justify="space-between" class="p-5">
                 <v-col cols="6">
                     <v-row>
-                        <v-btn text="Voltar" color="warning" @click="back"/>
+                        <v-btn text="Voltar" color="warning" @click="back" />
                     </v-row>
                 </v-col>
                 <v-col cols="6">
                     <v-row justify="end">
-                        <v-btn text="Salvar" color="primary" type="submit"/>
+                        <v-btn text="Salvar" color="primary" type="submit" />
                     </v-row>
                 </v-col>
             </v-row>
@@ -153,6 +150,4 @@ const rules = {
     </v-form>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

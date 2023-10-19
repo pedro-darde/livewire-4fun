@@ -1,9 +1,10 @@
 <script setup>
-import {defineComponent, ref} from "vue";
+import { defineComponent, ref } from "vue";
 import DynamicTable from "../dynamic-table/DynamicTable.vue";
-import {useAlert} from "../../composables/useAlert.js";
-import {router} from '@inertiajs/core'
+import { useAlert } from "../../composables/useAlert.js";
+import { router } from '@inertiajs/core'
 import _ from 'lodash'
+import { axiosInstance } from '../../shared/axios'
 
 const {
     fireAlertDelete,
@@ -76,11 +77,11 @@ const modelProps = {
 const emit = defineEmits(['refresh'])
 const registers = ref(props.patients)
 const onDelete = async (register) => {
-    const {isConfirmed} = await fireAlertDelete()
+    const { isConfirmed } = await fireAlertDelete()
 
     if (isConfirmed) {
         try {
-            await axios.delete(`/patients/${register.id}`)
+            await axiosInstance.delete(`/patients/${register.id}`)
             toast('Paciente excluído com sucesso', 'success')
             console.log(registers)
             loadMoreItens({
@@ -101,7 +102,7 @@ const onUpdate = (register) => {
     router.visit(`/patients/${register.id}`)
 }
 
-const emitCrudEvent = ({crudOperation, register}) => {
+const emitCrudEvent = ({ crudOperation, register }) => {
     if (crudOperation === 'delete') {
         onDelete(register)
     } else if (crudOperation === 'update') {
@@ -112,13 +113,13 @@ const emitCrudEvent = ({crudOperation, register}) => {
 const requesting = ref(false)
 
 
-const requestPatients = async ({page, itemsPerPage, sortBy, searchString}) => {
+const requestPatients = async ({ page, itemsPerPage, sortBy, searchString }) => {
     const [{
         key,
         order
-    }] = sortBy.length ? sortBy : [{key: '', order: ''}]
+    }] = sortBy.length ? sortBy : [{ key: '', order: '' }]
     requesting.value = true
-    const response = await axios.get('api/patients/loadMore', {
+    const response = await axiosInstance.get('api/patients/loadMore', {
         params: {
             page,
             per_page: itemsPerPage,
@@ -142,28 +143,19 @@ const requestPatients = async ({page, itemsPerPage, sortBy, searchString}) => {
     }
     requesting.value = false
 }
-const loadMoreItens = async ({page, itemsPerPage, sortBy, searchString}) => {
+const loadMoreItens = async ({ page, itemsPerPage, sortBy, searchString }) => {
     lastSearchString.value = searchString
-    await requestPatients({page, itemsPerPage, sortBy, searchString})
+    await requestPatients({ page, itemsPerPage, sortBy, searchString })
 }
 
 </script>
 
 <template>
     <div>
-        <DynamicTable :registers="registers"
-                      :column-definitions="columnDefinitions"
-                      table="patient"
-                      :model-props="modelProps"
-                      @crud-event="emitCrudEvent"
-                      :use-api-pagination="true"
-                      @load-more="loadMoreItens"
-                      :requesting-items="requesting"
-                      :show-order-options="false"
-        />
+        <DynamicTable :registers="registers" :column-definitions="columnDefinitions" table="patient"
+            :model-props="modelProps" @crud-event="emitCrudEvent" :use-api-pagination="true" @load-more="loadMoreItens"
+            :requesting-items="requesting" :show-order-options="false" />
     </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

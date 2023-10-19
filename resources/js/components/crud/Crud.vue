@@ -8,6 +8,7 @@ import useRequest from "../../composables/useRequest.js";
 import {Str} from "../../shared/Str";
 import ModalCreate from "./ModalCreate.vue";
 import {VAutocomplete, VTextField} from "vuetify/components";
+import axios from 'axios'
 
 const {fireAlertDelete, toast, fireError} = useAlert()
 const {processRequest} = useRequest()
@@ -104,7 +105,7 @@ const deleteOperation = async (register) => {
 const errors = ref({})
 const saveRegister = async () => {
 
-    const url = `${page.props.app.base_url}/api/dynamic/save`
+    const url = `/api/dynamic/save`
     const response = await (processRequest(url, 'post', {
         register: currentEditRegister.value,
         table: props.table,

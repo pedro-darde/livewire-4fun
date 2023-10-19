@@ -8,7 +8,7 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['save'])
+const emit = defineEmits(['save', 'next'])
 
 const patientToEdit = {
     ...props.patient
@@ -17,12 +17,11 @@ const patientToEdit = {
 const emitSave = (patient) => {
     emit('save', patient)
 }
+
 </script>
 
 <template>
-    <CreateEditPatientComponent @save="emitSave" :current-patient="patientToEdit"/>
+    <CreateEditPatientComponent @save="emitSave" :current-patient="patientToEdit"  />
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

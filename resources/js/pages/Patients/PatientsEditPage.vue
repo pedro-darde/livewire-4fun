@@ -1,14 +1,17 @@
 <script setup>
-
-import PatientsCreate from "../../components/patients/PatientsCreate.vue";
-import {RequestProcessor} from "../../shared/RequestProcessor";
-import {useAlert} from "../../composables/useAlert";
-import {usePage} from "@inertiajs/vue3";
-import {router} from '@inertiajs/core';
+import { RequestProcessor } from "../../shared/RequestProcessor";
+import { useAlert } from "../../composables/useAlert";
+import { usePage } from "@inertiajs/vue3";
+import { router } from '@inertiajs/core';
 import Layout from "../../components/layout/Layout.vue";
 import PatientsEdit from "../../components/patients/PatientsEdit.vue";
-
-defineProps({
+import { computed, ref } from "vue";
+import PatientAppointments from "../../components/patients/PatientAppointments.vue";
+import { usePopup } from '../../composables/usePopup'
+import CreateEditAppointmentComponent from "../../components/appointments/CreateEditAppointmentComponent.vue";
+import useRequest from "../../composables/useRequest";
+import { AppointmentStatus } from '../../shared/AppointmentStatus'
+const props = defineProps({
     patient: {
         type: Object,
         required: false
@@ -18,11 +21,18 @@ defineProps({
 const {
     fireError, toast
 } = useAlert()
+const {
+    open: modalCreateAppointment,
+    openPopup: openModalCreateAppointment,
+    closePopup: closeModalCreateAppointment
+} = usePopup()
+
 const page = usePage()
+const { processRequest } = useRequest()
 
 async function requestSave(register) {
     // page.
-    const response = await (new RequestProcessor(`/patients/${register.id}`, 'put', register)).process()
+    const response = await processRequest(`patients/${register.id}`, 'put', register)
     if (response.hasErrors()) {
         fireError('An error has ocurred', response.getErrors(true))
     } else {
@@ -30,19 +40,183 @@ async function requestSave(register) {
         router.visit('/patients')
     }
 }
-</script>
 
+const tab = ref('option-1')
+const saveNewAppointment = async (appointmentData) => {
+    const response = await processRequest(`appointments`, 'post', {
+        ...appointmentData,
+        patients: [props.patient.id]
+    })
+
+    closeModalCreateAppointment()
+    router.reload({
+        replace: true,
+        only: ['patient']
+    })
+}
+
+const nextTab = (isReturn = false) => {
+    let currentTabIndex = availableTabs.indexOf(tab.value)
+    if (isReturn) {
+        currentTabIndex--
+    } else {
+        currentTabIndex++
+    }
+    const newTab = availableTabs[currentTabIndex]
+    tab.value = newTab
+}
+
+const availableTabs = [
+    'option-1',
+    'option-2',
+    'option-3'
+]
+
+const isLastTab = computed(() => {
+    return tab.value === 'option-3'
+})
+const isFirstTab = computed(() => {
+    return tab.value === 'option-1'
+})
+
+
+const confirmAppointment = async ({ id }) => {
+     const response = await processRequest(`appointment/${id}/changeStatus`, 'post', {
+        status: AppointmentStatus.CONFIRMED
+     })
+
+    if (!response.hasErrors()) {
+      router.reload({
+        replace: true,
+        only: ['patient']
+      })
+    }
+
+}
+
+const cancelAppointment = async ({ id }) => {
+  const response = await processRequest(`appointment/${id}/changeStatus`, 'post', {
+    status: AppointmentStatus.CANCELLED
+  })
+
+  if (!response.hasErrors()) {
+    router.reload({
+      replace: true,
+      only: ['patient']
+    })
+    toast('Consulta cancelada com sucesso', 'success')
+  }
+}
+
+const finishAppointment = async ({ id, start }) => {
+
+  const response = await processRequest(`appointment/${id}/changeStatus`, 'post', {
+    status: AppointmentStatus.FINISHED
+  })
+
+  if (!response.hasErrors()) {
+    router.reload({
+      replace: true,
+      only: ['patient']
+    })
+  }
+}
+
+</script>
 <template>
     <Layout>
-        <div class="flex items-center justify-center flex-column mt-5">
-            <div class="flex flex-row justify-between">
-                <h1 class="text-xl font-bold text-center">Editar Paciente {{ patient.name }}</h1>
-            </div>
-            <PatientsEdit @save="requestSave" :patient="patient"></PatientsEdit>
+        <div class="flex items-center justify-center flex-column m-5">
+            <v-card class="w-full m-5">
+                <v-toolbar color="primary">
+                    <div class="flex flex-row justify-between p-3">
+                        <h1 class="text-xl font-bold text-center">Editar Paciente {{ patient.name }}</h1>
+                    </div>
+                </v-toolbar>
+                <div class="d-flex flex-row w-full">
+                    <v-tabs v-model="tab" direction="vertical" color="primary">
+                        <v-tab value="option-1">
+                            <v-icon start>
+                                mdi-account
+                            </v-icon>
+                            Dados cadastrais
+                        </v-tab>
+                        <v-tab value="option-2">
+                            <v-icon start>
+                                mdi-stethoscope
+                            </v-icon>
+                            Consultas
+                        </v-tab>
+                        <v-tab value="option-3">
+                            <v-icon start>
+                                mdi-cash
+                            </v-icon>
+                            Financeiro
+                        </v-tab>
+                    </v-tabs>
+                    <v-window v-model="tab" class="w-full">
+                        <v-window-item value="option-1" class="w-full">
+                            <v-card flat>
+                                <PatientsEdit @save="requestSave" :patient="patient" :show-next-button="true"
+                                    @next="nextTab()"></PatientsEdit>
+                            </v-card>
+                        </v-window-item>
+                        <v-window-item value="option-2">
+                            <v-card flat>
+                                <v-row>
+                                    <v-col cols="5">
+                                        <v-row style="flex-wrap: nowrap">
+                                            <v-row class="m-5" justify="center" align-items="center">
+                                                <h2 class="text-center text-h4 p-2"> Consultas </h2>
+                                                <v-btn icon="mdi-plus" class="p-2" @click="openModalCreateAppointment">
+                                                </v-btn>
+                                            </v-row>
+                                        </v-row>
+                                        <v-dialog v-model="modalCreateAppointment">
+                                            <v-container class="bg-slate-200 bg-opacity-90 p-8 rounded-lg overflow-auto">
+                                                <h2 class="text-xl font-bold text-center"> Adicionar consulta </h2>
+                                                <v-divider></v-divider>
+                                                <CreateEditAppointmentComponent :show-patient-select="false" @save="saveNewAppointment"/>
+                                            </v-container>
+                                        </v-dialog>
+                                        <PatientAppointments
+                                            :appointments="patient.appointments"
+                                            @finish="finishAppointment"
+                                            @cancel="cancelAppointment"
+                                            @confirm="confirmAppointment"
+
+                                        />
+                                    </v-col>
+                                    <v-col cols="1" class="h-50"></v-col>
+                                    <v-col cols="6">
+                                        <h2 class="text-center text-h4 p-2"> Calendário </h2>
+                                    </v-col>
+                                </v-row>
+
+                            </v-card>
+                        </v-window-item>
+                        <v-window-item value="option-3">
+                            <v-card flat>
+                                <v-card-text>
+
+                                </v-card-text>
+                            </v-card>
+
+                        </v-window-item>
+                    </v-window>
+                </div>
+                <v-row justify="space-between" class="p-5">
+                    <v-col cols="6">
+                        <v-btn color="primary" :disabled="isFirstTab" @click="nextTab(true)"> Voltar </v-btn>
+                    </v-col>
+                    <v-col cols="6">
+                        <v-row justify="end">
+                            <v-btn color="primary" :disabled="isLastTab" @click="nextTab()"> Próximo </v-btn>
+                        </v-row>
+                    </v-col>
+                </v-row>
+            </v-card>
         </div>
     </Layout>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

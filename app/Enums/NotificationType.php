@@ -2,9 +2,9 @@
 
 namespace App\Enums;
 
-enum NotificationType
+enum NotificationType: string
 {
-    case APPOINTMENT;
-    case MEETING;
-    case REMINDER;
+    case APPOINTMENT = 'A';
+    case MEETING = 'M';
+    case REMINDER = 'R';
 }

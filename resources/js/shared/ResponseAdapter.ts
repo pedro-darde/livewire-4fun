@@ -1,5 +1,5 @@
-import {AxiosResponse} from 'axios'
-import {Str} from "./Str";
+import { AxiosResponse } from 'axios'
+import { Str } from "./Str";
 
 export class ResponseAdapter {
     private statusCode: number
@@ -14,10 +14,11 @@ export class ResponseAdapter {
         return this.statusCode;
     }
 
-    getErrors(formatToHtml = false) {
+    getErrors(formatToHtml: boolean = false) {
         if (this.statusCode === 422) {
             if (formatToHtml) {
                 const errors = this.response.data.errors
+                if (!errors) return [this.response.data.message ?? "Ocorreu um erro interno, contate o administrador sistema."]
                 let html = '<ul>'
                 for (const key in errors) {
                     html += `<li><b> ${Str.capitalize(key)}: </b> ${errors[key].join(', ')}</li>`
@@ -42,7 +43,6 @@ export class ResponseAdapter {
     }
 
     hasErrors() {
-        console.log(this.statusCode)
         return this.statusCode > 301
     }
 

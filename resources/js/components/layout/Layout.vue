@@ -1,11 +1,12 @@
 <script setup>
-import {Link, usePage} from '@inertiajs/vue3'
-import {onMounted, ref, watch} from "vue";
-import {RequestProcessor} from "../../shared/RequestProcessor";
+import { Link, usePage } from '@inertiajs/vue3'
+import { onMounted, ref, watch } from "vue";
+import { RequestProcessor } from "../../shared/RequestProcessor";
 
 const page = usePage()
 
 const screens = ref([])
+console.log(page.props)
 
 onMounted(async () => {
   const baseUrl = page.props.app.base_url
@@ -25,7 +26,7 @@ const getLinkClass = (url) => {
     <header class="flex flex-row items-center justify-center gap-2 p-5 h-24 bg-slate-400">
       <Link href="/welcome" :class="getLinkClass('/')">Home</Link>
       <Link href="/patients" :class="getLinkClass('/patients')">Pacientes</Link>
-      <Link href="/appointments" :class="getLinkClass('/appointments')">Consultas</Link>
+      <!-- <Link href="/appointments" :class="getLinkClass('/appointments')">Consultas</Link> -->
 
       <!--            <Link href="/screens" :class="getLinkClass('/screens')">Screens</Link>-->
       <!--            <Link v-for="screen in screens" :href="`/screens/dynamic/${screen.url}`" :class="getLinkClass(`/screens/dynamic/${screen.url}`)">-->
@@ -34,7 +35,7 @@ const getLinkClass = (url) => {
       <!--            </Link>-->
     </header>
     <article>
-      <slot/>
+      <slot />
     </article>
   </main>
 </template>

@@ -1,15 +1,15 @@
-import {createInertiaApp} from "@inertiajs/vue3";
+import { createInertiaApp } from "@inertiajs/vue3";
 import axios from "axios";
-import {createApp, h, reactive} from "vue";
+import { createApp, h, reactive } from "vue";
 import 'vuetify/styles'
-import {createVuetify} from 'vuetify'
+import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import '@mdi/font/css/materialdesignicons.css'
 import DateFnsAdapter from '@date-io/date-fns';
 import ptBR from 'date-fns/locale/pt-BR'
 import en from 'date-fns/locale/en-US'
-import {vMaska} from "maska"
+import { vMaska } from "maska"
 
 
 interface InertiaAppProps {
@@ -20,15 +20,15 @@ interface InertiaAppProps {
     onSetup?: (appInstance: any, store: any, props: any) => void;
 }
 
-export function initInertiaApp({pages, id, mixin, store, onSetup}: InertiaAppProps) {
+export function initInertiaApp({ pages, id, mixin, store, onSetup }: InertiaAppProps) {
     return createInertiaApp({
         id: id ?? 'app',
         resolve: name => {
             console.log('page name', name);
             return pages[`./pages/${name}.vue`]
         },
-        setup({el, App, props, plugin}) {
-            const appInstance = createApp({render: () => h(App, props)})
+        setup({ el, App, props, plugin }) {
+            const appInstance = createApp({ render: () => h(App, props) })
                 .use(plugin);
 
             appInstance.directive('maska', vMaska)

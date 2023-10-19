@@ -1,9 +1,10 @@
 <script setup>
-import {defineComponent, ref} from "vue";
+import { defineComponent, ref } from "vue";
 import DynamicTable from "../dynamic-table/DynamicTable.vue";
-import {useAlert} from "../../composables/useAlert.js";
-import {router} from '@inertiajs/core'
+import { useAlert } from "../../composables/useAlert.js";
+import { router } from '@inertiajs/core'
 import _ from 'lodash'
+import { axiosInstance } from "../../shared/axios";
 
 const {
   fireAlertDelete,
@@ -24,12 +25,12 @@ const columnDefinitions = [
     extraProps: {}
   },
   {
-    columnName: "start",
+    columnName: "startParsed",
     columnDescription: "Começa",
     extraProps: {}
   },
   {
-    columnName: "end",
+    columnName: "endParsed",
     columnDescription: "Termina",
     extraProps: {}
   },
@@ -55,11 +56,11 @@ const modelProps = {
 const emit = defineEmits(['refresh'])
 const registers = ref(props.appointments)
 const onDelete = async (register) => {
-  const {isConfirmed} = await fireAlertDelete()
+  const { isConfirmed } = await fireAlertDelete()
 
   if (isConfirmed) {
     try {
-      await axios.delete(`/appointments/${register.id}`)
+      await axiosInstance.delete(`/appointments/${register.id}`)
       toast('Paciente excluído com sucesso', 'success')
       console.log(registers)
       loadMoreItens({
@@ -80,7 +81,7 @@ const onUpdate = (register) => {
   router.visit(`/appointments/${register.id}`)
 }
 
-const emitCrudEvent = ({crudOperation, register}) => {
+const emitCrudEvent = ({ crudOperation, register }) => {
   if (crudOperation === 'delete') {
     onDelete(register)
   } else if (crudOperation === 'update') {
@@ -91,13 +92,13 @@ const emitCrudEvent = ({crudOperation, register}) => {
 const requesting = ref(false)
 
 
-const requestAppointments = async ({page, itemsPerPage, sortBy, searchString}) => {
+const requestAppointments = async ({ page, itemsPerPage, sortBy, searchString }) => {
   const [{
     key,
     order
-  }] = sortBy.length ? sortBy : [{key: '', order: ''}]
+  }] = sortBy.length ? sortBy : [{ key: '', order: '' }]
   requesting.value = true
-  const response = await axios.get('api/appointments/loadMore', {
+  const response = await axiosInstance.get('api/appointments/loadMore', {
     params: {
       page,
       per_page: itemsPerPage,
@@ -121,28 +122,19 @@ const requestAppointments = async ({page, itemsPerPage, sortBy, searchString}) =
   }
   requesting.value = false
 }
-const loadMoreItens = async ({page, itemsPerPage, sortBy, searchString}) => {
+const loadMoreItens = async ({ page, itemsPerPage, sortBy, searchString }) => {
   lastSearchString.value = searchString
-  await requestAppointments({page, itemsPerPage, sortBy, searchString})
+  await requestAppointments({ page, itemsPerPage, sortBy, searchString })
 }
 
 </script>
 
 <template>
   <div>
-    <DynamicTable :registers="registers"
-                  :column-definitions="columnDefinitions"
-                  table="appointment"
-                  :model-props="modelProps"
-                  @crud-event="emitCrudEvent"
-                  :use-api-pagination="true"
-                  @load-more="loadMoreItens"
-                  :requesting-items="requesting"
-                  :show-order-options="false"
-    />
+    <DynamicTable :registers="registers" :column-definitions="columnDefinitions" table="appointment"
+      :model-props="modelProps" @crud-event="emitCrudEvent" :use-api-pagination="true" @load-more="loadMoreItens"
+      :requesting-items="requesting" :show-order-options="false" />
   </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

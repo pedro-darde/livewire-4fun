@@ -35,12 +35,13 @@ class AuthController extends Controller
         if (Auth::attempt(['email' => $user->email, 'password' => $user->password])) {
             $request->session()->regenerate();
 
-            return response()->json(['message' => 'Usuário cadastrado com sucesso!']);
+
+            return response()->json([
+                'message' => 'Usuário cadastrado com sucesso!',
+            ]);
         }
 
         return redirect()->route('login');
-
-
     }
 
     public function doLogin(Request $request)
@@ -50,11 +51,23 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $rememberMe)) {
             $request->session()->regenerate();
-            return response()->json(['message' => 'Usuário logado com sucesso!']);
+
+            $token = auth()->user()->createToken('auth_token')->plainTextToken;
+            return response()->json([
+                'message' => 'Usuário logado com sucesso!',
+                'token' => $token
+
+            ]);
         }
 
         return response()->json([
             'message' => 'Usuário ou senha inválidos!'
         ], 422);
+    }
+
+    public function logout()
+    {
+        Auth::logout();
+        return redirect()->route('login');
     }
 }

@@ -1,5 +1,6 @@
-import {ResponseAdapter} from './ResponseAdapter';
-import axios, {AxiosResponse} from "axios";
+import { ResponseAdapter } from './ResponseAdapter';
+import axios, { AxiosResponse } from "axios";
+import { axiosInstance } from './axios';
 
 export class RequestProcessor {
 
@@ -7,16 +8,16 @@ export class RequestProcessor {
     static cacheResponses: Map<string, ResponseAdapter> = new Map<string, ResponseAdapter>()
 
     constructor(private readonly url: string,
-                private readonly method = 'get',
-                private readonly data = {},
+        private readonly method = 'get',
+        private readonly data = {},
     ) {
     }
 
     async process() {
         let response
         try {
-            response = await axios[this.method](this.url, this.data)
-        } catch (err) {
+            response = await axiosInstance[this.method](this.url, this.data)
+        } catch (err:any) {
             response = err.response
         } finally {
             return new ResponseAdapter(response)
@@ -31,7 +32,7 @@ export class RequestProcessor {
         }
 
         try {
-            response = await axios[this.method](this.url, {
+            response = await axiosInstance[this.method](this.url, {
                 data: this.data
             })
         } catch (err) {
