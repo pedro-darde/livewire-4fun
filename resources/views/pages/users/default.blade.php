@@ -1,11 +1,8 @@
 @extends("app")
-
 @section('title', 'Users')
-
-
 @section("content")
     <div>
-        @livewire('crud', ['modelClass' =>  \App\Models\User::class, 'routineTitle' => 'Users'], key(Str::random()))
+        chamar o componente do vue
     </div>
 @endsection
 

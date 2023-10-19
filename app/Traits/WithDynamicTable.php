@@ -6,7 +6,7 @@ WithDynamicTable
 {
     static function getDtoColumnDefinitions(): array;
 
-    public function getTD(): string;
+    public function getTDAttribute(): string;
 
     public function scopeFilterBySearchString($query,string $searchString);
 }

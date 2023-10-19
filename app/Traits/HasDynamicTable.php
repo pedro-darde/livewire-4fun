@@ -36,31 +36,40 @@ trait HasDynamicTable
         return DynamicTableDTO::generateByArrayDefinition($arrayDefinition);
     }
 
-    public function getTD(): string
+    static function getOnlyRules() {
+        $rules = [];
+        foreach(static::getDtoColumnDefinitions() as $item) {
+            if (empty($item->getColumnRules())) continue;
+            $rules[$item->columnName] = $item->getColumnRules();
+        }
+        return $rules;
+    }
+
+    public function getTDAttribute(): string
     {
         $strReturn = "";
-        foreach(static::$fillableWithDefinitions as $columnName => $_) {
-            if (in_array($columnName, $this->getHidden())) continue;
-            $strReturn .= "<td class='p-4'> {$this->{$columnName}} </td>";
-        }
-
-        if (static::$useRecordActions) {
-            $strReturn .= <<<HTML
-            <td class="p-4">
-                  <a href="#" class="p-2" onclick="onEditClick({$this->id})">
-                    <i class="fas fa-edit">
-                    </i>
-                  </a>
-                   <a href="#" class="p-2" onclick="showToastDelete({$this->id})">
-                    <i class="fas fa-remove"> </i>
-                </a>
-            </td>
-HTML;
-        }
+//        foreach(static::$fillableWithDefinitions as $columnName => $_) {
+//            if (in_array($columnName, $this->getHidden())) continue;
+//            $strReturn .= "<td class='p-4'> {$this->{$columnName}} </td>";
+//        }
+//
+//        if (static::$useRecordActions) {
+//            $strReturn .= <<<HTML
+//            <td class="p-4">
+//                  <a href="#" class="p-2">
+//                    <i class="fas fa-edit">
+//                    </i>
+//                  </a>
+//                   <a href="#" class="p-2" >
+//                    <i class="fas fa-remove"> </i>
+//                </a>
+//            </td>
+//HTML;
+//        }
         return $strReturn;
     }
 
-    public function scopeFilterBySearchString($query,string $searchString, $orderBy = [], $orderDirection = 'asc')
+    public function scopeFilterBySearchString($query,string $searchString = '', $orderBy = [], $orderDirection = 'asc')
     {
         if (empty($orderBy)) {
             $orderBy = Arr::map(static::getDtoColumnDefinitions(), fn ($item) => $item->getColumnName());
@@ -71,12 +80,26 @@ HTML;
                if (in_array($columnName, $this->getHidden())) continue;
                $method = $count === 0 ? "where" : "orWhere";
                $count++;
-               $query->{$method}($columnName, "ILIKE", "$searchString%");
+
+               $operation = $this->extractLikeOperatorByDatabaseType();
+               $query->{$method}($columnName, $operation, "$searchString%");
            }
         });
         foreach ($orderBy as $order) {
             $q->orderBy($order, $orderDirection);
         }
         return $q;
+    }
+
+    private function extractLikeOperatorByDatabaseType()
+    {
+        $dbType = env("DB_TYPE") ?? "mysql";
+
+        switch($dbType) {
+            case "mysql":
+                return "LIKE";
+            default:
+                return "ILIKE";
+        }
     }
 }
