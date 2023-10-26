@@ -72,11 +72,12 @@ class AppointmentController extends Controller
             'recurrence_type' => 'required',
             'recurrence_type.value' => 'required|in:0,1,2,3',
             'useCustomRecurrence' => 'nullable',
-            'useCustomRecurrenceMonth' => 'nullable',
+            'useCustomRecurrenceWeek' => 'nullable',
             'useDefaultRecurrence' => 'nullable',
-            'useDefaultRecurrenceMonth' => 'nullable',
+            'useDefaultRecurrenceWeek' => 'nullable',
             'numberOfRecurrences' => 'required_if:useCustomRecurrence,true|integer|min:1',
-            'id_service_supplied' => 'required|exists:service_supplied,id'
+            'id_service_supplied' => 'required|exists:service_supplied,id',
+            'recurrenceWeeklyDays' => 'required_if:useCustomRecurrenceWeek,true|array|min:1',
         ]);
 
         $this->createAppointmentService

@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import { initInertiaApp, initAuthInterceptor, duplicateInitialPageProps } from "./shared/setup";
 import axios from 'axios'
 window.Swal = Swal
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 window.axios = axios
 window.axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";

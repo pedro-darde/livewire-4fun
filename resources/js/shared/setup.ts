@@ -11,6 +11,8 @@ import ptBR from 'date-fns/locale/pt-BR'
 import en from 'date-fns/locale/en-US'
 import { vMaska } from "maska"
 
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 interface InertiaAppProps {
     pages: Record<string, any>;
@@ -32,6 +34,8 @@ export function initInertiaApp({ pages, id, mixin, store, onSetup }: InertiaAppP
                 .use(plugin);
 
             appInstance.directive('maska', vMaska)
+            appInstance.component('QuillEditor', QuillEditor);
+
 
             const vuetify = createVuetify({
                 components,

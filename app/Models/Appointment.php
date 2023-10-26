@@ -7,6 +7,8 @@ use App\Casts\DateTime;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property int $id
@@ -18,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $recurrence_type
  * @property int $id_service_supplied
  * @method static \Illuminate\Database\Eloquent\Builder|Appointment find(int $id)
+ * @method static \Illuminate\Database\Eloquent\Builder|Appointment orderByDesc(string $field)
  */
 
 class Appointment extends Model
@@ -34,6 +37,10 @@ class Appointment extends Model
         'onlyHourStart',
         'onlyHourEnd'
     ];
+
+    const MAX_WEEKLY_APPOINTMENTS = 8;
+    const MAX_MONTHLY_APPOINTMENTS = 6;
+    const MAX_BIWEEKLY_APPOINTMENTS = 28;
 
     public function creator()
     {
@@ -52,14 +59,10 @@ class Appointment extends Model
         );
     }
 
-    // protected static function boot()
-    // {
-    //     parent::boot();
-
-    //     static::created(function (Appointment $appointment) {
-    //         // todo create appointment notifications
-    //     });
-    // }
+    public function note(): HasOne
+    {
+        return $this->hasOne(AppointmentNote::class, 'appointment_id');
+    }
 
     public function getStartParsedAttribute()
     {

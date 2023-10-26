@@ -122,7 +122,6 @@ const emitSave = () => {
         return;
       }
     }
-    return;
     const data = {
       ...appointment.value,
       start: toDatabaseDate(appointment.value.start, LOCALE_FORMATS['pt-BR datetime'], false, true),

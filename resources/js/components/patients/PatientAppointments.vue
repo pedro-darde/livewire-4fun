@@ -7,7 +7,7 @@
                 <v-expansion-panel-title>
                   <h2 class="text-h5 text-center my-4"> {{ info.title }}</h2>
                 </v-expansion-panel-title>
-                <v-expansion-panel-text class="max-h-96 overflow-auto p-5">
+                <v-expansion-panel-text class="max-h-96 overflow-auto p-5 m-5">
                   <div class="h-auto mb-2" v-for="appointment in info.items">
                     <v-card class="mx-auto h-25" max-width="450" :color="getCardColorByStatus(appointment.status)" max-height="250">
                       <v-card-title>
@@ -16,7 +16,10 @@
                             {{ appointment.startParsed }} - {{ getAppointmentStatusNormalized(appointment.status) }}
                           </v-col>
                           <v-col cols="2">
-                            <v-btn icon="mdi-hand-pointing-right"></v-btn>
+                            <v-btn icon="mdi-hand-pointing-right" @click="appointment.modalNotes = !appointment.modalNotes"></v-btn>
+                              <v-dialog v-model="appointment.modalNotes">
+                                  <AppointmentNotes :appointment="appointment" @close="appointment.modalNotes = false"/>
+                              </v-dialog>
                           </v-col>
                         </v-row>
                       </v-card-title>
@@ -62,9 +65,10 @@
     </v-container>
 </template>
 <script setup >
-import {computed} from "vue";
+import {computed, ref} from "vue";
 import {useDateFormatter} from "../../composables/useDateFormatter.js";
 import {AppointmentStatus} from "../../shared/AppointmentStatus";
+import AppointmentNotes from "../appointments/AppointmentNotes.vue";
 
 const props = defineProps({
     appointments: {
@@ -155,26 +159,29 @@ const actionsOfAppointment = [
     {
         text: 'Confirmar',
         icon: 'mdi-hand-okay',
-        action: 'confirm'
+        action: 'confirm',
+        status: AppointmentStatus.CONFIRMED
     },
     {
         text: 'Cancelar',
         icon: 'mdi-delete',
-        action: 'cancel'
+        action: 'cancel',
+        status: AppointmentStatus.CANCELLED
     },
     {
       text: 'Finalizar',
       icon: 'mdi-check',
-      action: 'finish'
+      action: 'finish',
+      status: AppointmentStatus.FINISHED
     }
 ]
 
 const allowedActionsOfAppointment = (status) => {
     switch (status) {
         case AppointmentStatus.PENDING:
-            return actionsOfAppointment.filter(item => [AppointmentStatus.CONFIRMED, AppointmentStatus.CANCELLED].includes(item.action))
+            return actionsOfAppointment.filter(item => [AppointmentStatus.CONFIRMED, AppointmentStatus.CANCELLED].includes(item.status))
         case AppointmentStatus.CONFIRMED:
-            return actionsOfAppointment.filter(item => [AppointmentStatus.CANCELLED, AppointmentStatus.FINISHED].includes(item.action))
+            return actionsOfAppointment.filter(item => [AppointmentStatus.CANCELLED, AppointmentStatus.FINISHED].includes(item.status))
         default:
             return []
     }
@@ -194,4 +201,5 @@ const getCardColorByStatus = (status) => {
             return 'yellow-accent-2'
     }
 }
+
 </script>

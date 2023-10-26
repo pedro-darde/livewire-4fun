@@ -48,6 +48,12 @@ const saveNewAppointment = async (appointmentData) => {
         patients: [props.patient.id]
     })
 
+    if (response.hasErrors()) {
+        fireError(response.getErrors(true))
+        return
+    }
+
+    toast('Consulta adicionada com sucesso', 'success')
     closeModalCreateAppointment()
     router.reload({
         replace: true,
@@ -69,14 +75,23 @@ const nextTab = (isReturn = false) => {
 const availableTabs = [
     'option-1',
     'option-2',
-    'option-3'
+    'option-3',
+    'option-4'
 ]
 
 const isLastTab = computed(() => {
-    return tab.value === 'option-3'
+    return tab.value === 'option-4'
 })
 const isFirstTab = computed(() => {
     return tab.value === 'option-1'
+})
+
+const patientAppointments = computed(() => {
+    const appointments =  props.patient.appointments
+    appointments.forEach(appointment => {
+        appointment.modalNotes = false;
+    })
+    return appointments
 })
 
 
@@ -142,11 +157,17 @@ const finishAppointment = async ({ id, start }) => {
                         </v-tab>
                         <v-tab value="option-2">
                             <v-icon start>
+                                mdi-plus-circle
+                            </v-icon>
+                            Informações adicionais
+                        </v-tab>
+                        <v-tab value="option-3">
+                            <v-icon start>
                                 mdi-stethoscope
                             </v-icon>
                             Consultas
                         </v-tab>
-                        <v-tab value="option-3">
+                        <v-tab value="option-4">
                             <v-icon start>
                                 mdi-cash
                             </v-icon>
@@ -161,6 +182,13 @@ const finishAppointment = async ({ id, start }) => {
                             </v-card>
                         </v-window-item>
                         <v-window-item value="option-2">
+                            <v-card flat>
+                                <v-card-text>
+                                    Cadastrar informa
+                                </v-card-text>
+                            </v-card>
+                        </v-window-item>
+                        <v-window-item value="option-3">
                             <v-card flat>
                                 <v-row>
                                     <v-col cols="5">
@@ -179,7 +207,7 @@ const finishAppointment = async ({ id, start }) => {
                                             </v-container>
                                         </v-dialog>
                                         <PatientAppointments
-                                            :appointments="patient.appointments"
+                                            :appointments="patientAppointments"
                                             @finish="finishAppointment"
                                             @cancel="cancelAppointment"
                                             @confirm="confirmAppointment"
@@ -194,7 +222,7 @@ const finishAppointment = async ({ id, start }) => {
 
                             </v-card>
                         </v-window-item>
-                        <v-window-item value="option-3">
+                        <v-window-item value="option-4">
                             <v-card flat>
                                 <v-card-text>
 
