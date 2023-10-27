@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\AfterAppointmentCreatedJob;
 use App\Models\Appointment;
 use App\Services\appointment\CreateAppointmentService;
-use App\Services\Appointment\EditAppointmentService;
+use App\Services\appointment\EditAppointmentService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;

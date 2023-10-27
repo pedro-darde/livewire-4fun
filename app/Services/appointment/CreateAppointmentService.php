@@ -38,7 +38,6 @@ class CreateAppointmentService extends BaseAppointmentService
             }
 
             $appointments = Appointment::query()->whereIn('id', $idsAppointments)->get()->all();
-
             foreach($appointments as $appointment) {
                 AppointmentPatient::insert(
                     array_map(
@@ -50,9 +49,8 @@ class CreateAppointmentService extends BaseAppointmentService
                     )
                 );
             }
-
-            AfterAppointmentSavedJob::dispatch($appointments);
             DB::commit();
+            AfterAppointmentSavedJob::dispatch($appointments);
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;

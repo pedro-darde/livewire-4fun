@@ -12,6 +12,22 @@ use Inertia\Response as InertiaResponse;
 
 class PatientController extends Controller
 {
+    private static function getFieldRules(): array {
+        return [
+            'rg' => 'nullable|string',
+            'cpf' => ['string', new CPF],
+            'name' => 'string|required',
+            'last_name' => 'string|required',
+            'birth_date' => 'date|required',
+            'phone' => 'string|required',
+            'nickname' => 'nullable|string',
+            'email' => 'string|email',
+            'initial_demand' => 'nullable|string',
+            'initial_diagnosis' => 'nullable|string',
+            'objective' => 'nullable|string',
+            'emergency_contact' => 'nullable|string'
+        ];
+    }
     public function index(): InertiaResponse
     {
         $patients = Patient::paginate(10);
@@ -68,16 +84,7 @@ class PatientController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'rg' => 'nullable|string',
-            'cpf' => ['string', new CPF],
-            'name' => 'string|required',
-            'last_name' => 'string|required',
-            'birth_date' => 'date|required',
-            'phone' => 'string|required',
-            'nickname' => 'nullable|string',
-            'email' => 'string|email',
-        ]);
+        $validated = $request->validate(static::getFieldRules());
 
         $patient = new Patient;
         $patient->fill($validated);
@@ -91,16 +98,7 @@ class PatientController extends Controller
 
     public function update(Patient $patient, Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'rg' => 'nullable|string',
-            'cpf' => ['string', new CPF],
-            'name' => 'string|required',
-            'last_name' => 'string|required',
-            'birth_date' => 'date|required',
-            'phone' => 'string|required',
-            'nickname' => 'nullable|string',
-            'email' => 'string|email',
-        ]);
+        $validated = $request->validate(static::getFieldRules());
 
         $patient->fill($validated);
 

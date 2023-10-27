@@ -1,7 +1,7 @@
 <script setup>
 
 import { useDateFormatter } from "../../composables/useDateFormatter.js";
-import { ref } from "vue";
+import {computed, ref} from "vue";
 import { router } from "@inertiajs/vue3";
 
 const props = defineProps({
@@ -26,7 +26,11 @@ const patient = ref(props.currentPatient ?? {
     email: "",
     phone: "",
     cpf: "",
-    rg: ""
+    rg: "",
+    emergency_contact: "",
+    initial_demand: "",
+    initial_diagnosis: "",
+    objective: "",
 })
 
 const maskCPF = {
@@ -95,6 +99,11 @@ const rules = {
         }
     ]
 }
+
+const isOnEdit = computed(() => {
+    return !!props.currentPatient?.id
+})
+
 </script>
 
 <template>
@@ -116,14 +125,18 @@ const rules = {
                     <v-text-field v-model="patient.email" label="E-mail" required variant="solo-filled"
                         :rules="rules.email"></v-text-field>
                 </v-col>
-                <v-col cols="12" md="6">
-                    <v-text-field v-model="patient.phone" label="Telefone" required variant="solo-filled"
-                        v-maska:[maskTelefone] :rules="rules.telefone"></v-text-field>
-                </v-col>
-                <v-col cols="12" md="6">
-                    <v-text-field v-model="patient.cpf" label="CPF" required variant="solo-filled" v-maska:[maskCPF]
-                        :rules="rules.cpf"></v-text-field>
-                </v-col>
+                    <v-col cols="12" md="4">
+                        <v-text-field v-model="patient.phone" label="Telefone" required variant="solo-filled"
+                                      v-maska:[maskTelefone] :rules="rules.telefone"></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                        <v-text-field v-model="patient.emergency_contact" label="Contato de emergência" required
+                            variant="solo-filled" v-maska:[maskTelefone]        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                        <v-text-field v-model="patient.cpf" label="CPF" required variant="solo-filled" v-maska:[maskCPF]
+                                      :rules="rules.cpf"></v-text-field>
+                    </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="patient.rg" label="RG" required variant="solo-filled"
                         v-maska:[maskRG]></v-text-field>
@@ -134,6 +147,23 @@ const rules = {
 
                 </v-col>
             </v-row>
+            <template v-if="isOnEdit">
+                <v-divider thickness="10" color="black" ></v-divider>
+                <h3 class="text-h5 text-center mb-5"> Informações Adicionais </h3>
+                <v-row>
+                    <v-col cols="12" md="6">
+                        <v-textarea v-model="patient.initial_demand" label="Demanda inicial" required
+                            variant="solo-filled" rows="3"></v-textarea>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-textarea v-model="patient.initial_diagnosis" label="Diagnóstico inicial" required
+                            variant="solo-filled" rows="3"></v-textarea>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-textarea v-model="patient.objective" label="Objetivo" required variant="solo-filled" rows="3"></v-textarea>
+                    </v-col>
+                </v-row>
+            </template>
             <v-row justify="space-between" class="p-5">
                 <v-col cols="6">
                     <v-row>

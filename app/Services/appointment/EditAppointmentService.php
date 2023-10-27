@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Services\Appointment;
+namespace App\Services\appointment;
 
 use App\Jobs\AfterAppointmentSavedJob;
 use App\Models\Appointment;
 use App\Models\AppointmentPatient;
 use App\Models\Notification;
-use App\Services\notifications\NotifcationSchedulerService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;

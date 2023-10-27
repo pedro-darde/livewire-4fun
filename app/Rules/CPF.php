@@ -10,7 +10,7 @@ class CPF implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (!$this->checkCPF($value)) {
-            $fail('CPF :attribute inválido');
+            $fail('inválido');
         }
     }
 

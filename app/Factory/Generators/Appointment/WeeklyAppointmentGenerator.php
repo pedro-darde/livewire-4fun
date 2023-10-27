@@ -70,11 +70,11 @@ class WeeklyAppointmentGenerator extends BaseAppointmentGenerator
         $referenceStartDate = Carbon::createFromFormat( 'Y-m-d H:i', $this->appointmentData['start'], 'America/Sao_Paulo');
         $refenceEndDate = Carbon::createFromFormat( 'Y-m-d H:i', $this->appointmentData['end'], 'America/Sao_Paulo');
 
-        if ($this->appointmentData['useDefaultRecurrenceWeek']) {
+        if (!$this->appointmentData['useDefaultRecurrenceWeek']) {
             for ($i = 0; $i < Appointment::MAX_WEEKLY_APPOINTMENTS; $i++) {
                 foreach($this->appointmentData['recurrenceWeeklyDays'] as $dayConfig) {
-                    $referenceStartDate->setDay($dayConfig['day']);
-                    $refenceEndDate->setDay($dayConfig['day']);
+                    $referenceStartDate->setDaysFromStartOfWeek($dayConfig['day']);
+                    $refenceEndDate->setDaysFromStartOfWeek($dayConfig['day']);
 
                     [$hourStart, $minuteStart] = explode(':', $dayConfig['start']);
                     [$hourEnd, $minuteEnd] = explode(':', $dayConfig['end']);

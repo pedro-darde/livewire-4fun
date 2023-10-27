@@ -30,14 +30,21 @@ const {
 const page = usePage()
 const { processRequest } = useRequest()
 
+const reloadData = () => {
+    router.reload({
+        replace: true,
+        only: ['patient']
+    })
+}
+
 async function requestSave(register) {
     // page.
     const response = await processRequest(`patients/${register.id}`, 'put', register)
     if (response.hasErrors()) {
         fireError('An error has ocurred', response.getErrors(true))
     } else {
-        toast('Patient edited successfully', 'success')
-        router.visit('/patients')
+        reloadData()
+        toast('Paciente atualizado com sucesso', 'success')
     }
 }
 
@@ -49,16 +56,13 @@ const saveNewAppointment = async (appointmentData) => {
     })
 
     if (response.hasErrors()) {
-        fireError(response.getErrors(true))
+        // fireError(response.getErrors(true))
         return
     }
 
     toast('Consulta adicionada com sucesso', 'success')
     closeModalCreateAppointment()
-    router.reload({
-        replace: true,
-        only: ['patient']
-    })
+    reloadData()
 }
 
 const nextTab = (isReturn = false) => {
@@ -76,11 +80,10 @@ const availableTabs = [
     'option-1',
     'option-2',
     'option-3',
-    'option-4'
 ]
 
 const isLastTab = computed(() => {
-    return tab.value === 'option-4'
+    return tab.value === 'option-3'
 })
 const isFirstTab = computed(() => {
     return tab.value === 'option-1'
@@ -157,17 +160,11 @@ const finishAppointment = async ({ id, start }) => {
                         </v-tab>
                         <v-tab value="option-2">
                             <v-icon start>
-                                mdi-plus-circle
-                            </v-icon>
-                            Informações adicionais
-                        </v-tab>
-                        <v-tab value="option-3">
-                            <v-icon start>
                                 mdi-stethoscope
                             </v-icon>
                             Consultas
                         </v-tab>
-                        <v-tab value="option-4">
+                        <v-tab value="option-3">
                             <v-icon start>
                                 mdi-cash
                             </v-icon>
@@ -181,14 +178,8 @@ const finishAppointment = async ({ id, start }) => {
                                     @next="nextTab()"></PatientsEdit>
                             </v-card>
                         </v-window-item>
+
                         <v-window-item value="option-2">
-                            <v-card flat>
-                                <v-card-text>
-                                    Cadastrar informa
-                                </v-card-text>
-                            </v-card>
-                        </v-window-item>
-                        <v-window-item value="option-3">
                             <v-card flat>
                                 <v-row>
                                     <v-col cols="5">
@@ -222,7 +213,7 @@ const finishAppointment = async ({ id, start }) => {
 
                             </v-card>
                         </v-window-item>
-                        <v-window-item value="option-4">
+                        <v-window-item value="option-3">
                             <v-card flat>
                                 <v-card-text>
 
@@ -247,4 +238,9 @@ const finishAppointment = async ({ id, start }) => {
     </Layout>
 </template>
 
-<style scoped></style>
+<style scoped>
+ .v-window-item {
+     max-height: 650px;
+     overflow: auto;
+ }
+</style>
