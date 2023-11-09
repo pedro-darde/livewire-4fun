@@ -11,6 +11,7 @@ import { usePopup } from '../../composables/usePopup'
 import CreateEditAppointmentComponent from "../../components/appointments/CreateEditAppointmentComponent.vue";
 import useRequest from "../../composables/useRequest";
 import { AppointmentStatus } from '../../shared/AppointmentStatus'
+import Calendar from "../../components/Calendar/Calendar.vue";
 const props = defineProps({
     patient: {
         type: Object,
@@ -202,12 +203,16 @@ const finishAppointment = async ({ id, start }) => {
                                             @finish="finishAppointment"
                                             @cancel="cancelAppointment"
                                             @confirm="confirmAppointment"
-
+                                            @refresh="reloadData"
                                         />
                                     </v-col>
                                     <v-col cols="1" class="h-50"></v-col>
                                     <v-col cols="6">
                                         <h2 class="text-center text-h4 p-2"> Calendário </h2>
+                                        <div class="flex min-h-full">
+                                            <Calendar :appointments="patientAppointments" />
+                                        </div>
+
                                     </v-col>
                                 </v-row>
 

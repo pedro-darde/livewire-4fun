@@ -20,12 +20,6 @@ class Patient extends Model
     public function appointments()
     {
 
-        // Patient::class,
-        // AppointmentPatient::class,
-        // 'appointment_id',
-        // 'id',
-        // 'id',
-        // 'patient_id'
         return $this->hasManyThrough(
             Appointment::class,
             AppointmentPatient::class,

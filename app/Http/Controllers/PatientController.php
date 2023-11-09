@@ -76,7 +76,7 @@ class PatientController extends Controller
 
     public function show(Patient $patient): InertiaResponse
     {
-        $patient->load(['appointments','appointments.note']);
+        $patient->load(['appointments','appointments.note', 'appointments.note.files']);
         return Inertia::render('Patients/PatientsEditPage', [
             'patient' => $patient
         ]);

@@ -24,6 +24,21 @@ export class RequestProcessor {
         }
     }
 
+    async processFormData() {
+        let response
+        try {
+            response = await axiosInstance[this.method](this.url, this.data, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+        } catch (err:any) {
+            response = err.response
+        } finally {
+            return new ResponseAdapter(response)
+        }
+    }
+
     async processCached() {
         let response
         if (RequestProcessor.cacheResponses.has(this.url)) {
