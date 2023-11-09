@@ -7,10 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
+/**
+ * @method static AppointmentNote find(int $id)
+ */
+
 class AppointmentNote extends Model
 {
     use HasFactory;
 
+    const DIR_PATH = 'public/uploads/notes_files';
     protected $guarded = ['id'];
 
     protected $table = 'appointment_note';

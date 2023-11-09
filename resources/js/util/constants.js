@@ -9,9 +9,9 @@ export const DAYS_OF_WEEK = [
 
 
 export const DEFAULT_APPOINTMENT_TEXT = `
-        <h3><b> Relato da evolução:  </b></h3> <br />
-        <h3><b> Sentimentos/Comportamentos apresentados:</b> </h3> <br />
-        <h3> <b> Conduta terapeutica: </b></h3>
-        <h3> <b> Recursos Utilizados: </b></h3>
-        <h3> <b> Tarefas de casa: </b></h3>
+        <h2><b> Relato da evolução:  </b></h2>
+        <h2><b> Sentimentos/Comportamentos apresentados: </b></h2>
+        <h2><b> Conduta terapeutica: </b></h2>
+        <h2><b> Recursos Utilizados: </b></h2>
+        <h2><b> Tarefas de casa: </b></h2>
 `;

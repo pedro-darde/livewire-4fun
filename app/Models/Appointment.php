@@ -2,14 +2,10 @@
 
 namespace App\Models;
 
-use App\Casts\Date;
-use App\Casts\DateTime;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-
+use Illuminate\Database\Eloquent\Builder;
 /**
  * @property int $id
  * @property string $start
@@ -35,7 +31,8 @@ class Appointment extends Model
         'endParsed',
         'patientsNames',
         'onlyHourStart',
-        'onlyHourEnd'
+        'onlyHourEnd',
+        'title'
     ];
 
     const MAX_WEEKLY_APPOINTMENTS = 8;
@@ -92,7 +89,7 @@ class Appointment extends Model
         return date('H:i', strtotime($this->end));
     }
 
-    public function scopeTodayAppointments($query)
+    public function scopeTodayAppointments(Builder $query): Builder
     {
         return $query->whereRaw("date(start) = date(now())");
     }
@@ -103,5 +100,10 @@ class Appointment extends Model
             return $this->patients->map(fn ($patient) => $patient->name . ' ' . $patient->last_name)->join(', ');
         }
         return $this->patients()->get()->map(fn ($patient) => $patient->name . ' ' . $patient->last_name)->join(', ');
+    }
+
+    public function getTitleAttribute()
+    {
+        return 'Consulta com ' . $this->patientsNames . ' as ' . $this->onlyHourStart;
     }
 }

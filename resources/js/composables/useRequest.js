@@ -12,7 +12,15 @@ export default function useRequest() {
        return await (new RequestProcessor(urlWithBase, method, data).process())
     }
 
+    async function processRequestWithFormData(url, method, data = null) {
+        const page = usePage()
+        const baseURL = page.props.app.base_url
+        const urlWithBase = `${baseURL}/${url}`
+        return await (new RequestProcessor(urlWithBase, method, data).processFormData())
+    }
+
     return {
-        processRequest
+        processRequest,
+        processRequestWithFormData
     }
 }

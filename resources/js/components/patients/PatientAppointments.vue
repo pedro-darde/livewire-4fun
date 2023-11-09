@@ -18,7 +18,7 @@
                           <v-col cols="2">
                             <v-btn icon="mdi-hand-pointing-right" @click="appointment.modalNotes = !appointment.modalNotes"></v-btn>
                               <v-dialog v-model="appointment.modalNotes">
-                                  <AppointmentNotes :appointment="appointment" @close="appointment.modalNotes = false"/>
+                                  <AppointmentNotes :appointment="appointment" @close="appointment.modalNotes = false" @save="saveNote"/>
                               </v-dialog>
                           </v-col>
                         </v-row>
@@ -69,6 +69,9 @@ import {computed, ref} from "vue";
 import {useDateFormatter} from "../../composables/useDateFormatter.js";
 import {AppointmentStatus} from "../../shared/AppointmentStatus";
 import AppointmentNotes from "../appointments/AppointmentNotes.vue";
+import useRequest from "../../composables/useRequest.js";
+import {usePopup} from "../../composables/usePopup.js";
+import {useAlert} from "../../composables/useAlert.js";
 
 const props = defineProps({
     appointments: {
@@ -77,9 +80,11 @@ const props = defineProps({
     }
 })
 
+const { processRequestWithFormData } = useRequest()
 const { formatDate, isAfter, isBefore } = useDateFormatter()
+const { toast, fireError } = useAlert()
 
-const emit = defineEmits(['confirm', 'cancel','finish'])
+const emit = defineEmits(['confirm', 'cancel','finish', 'refresh'])
 
 const onlyDateToday = formatDate()
 
@@ -175,6 +180,21 @@ const actionsOfAppointment = [
       status: AppointmentStatus.FINISHED
     }
 ]
+
+const saveNote = async (note) => {
+    let url = `note/${note.idAppointment}`
+    if (!!note.id) {
+        url += `/${note.id}`
+    }
+    const response = await processRequestWithFormData(url, 'post', note)
+    if (response.hasErrors()) {
+        fireError(response.getErrors(true))
+        return
+    }
+
+    toast('Nota salva com sucesso!', 'success')
+    emit('refresh')
+}
 
 const allowedActionsOfAppointment = (status) => {
     switch (status) {
