@@ -3,6 +3,7 @@
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ScreenController;
@@ -29,6 +30,7 @@ Route::middleware(UserLogged::class)->group(function () {
     Route::post('/appointment/{appointment}/changeStatus', [AppointmentController::class, 'changeStatus']);
     Route::post('/note/{appointment}', [NoteController::class, 'store'])->name('saveNote');
     Route::post('/note/{appointment}/{note}', [NoteController::class, 'update'])->name('updateNote');
+    Route::post("/downloadFile", [FileController::class, 'download'])->name("downloadFile");
 });
 
 Route::get("/aaaaa", [AppointmentController::class, 'test']);

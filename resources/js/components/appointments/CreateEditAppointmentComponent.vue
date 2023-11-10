@@ -105,7 +105,6 @@ const maskOnlyTime = {
 
 const formRef = ref(null)
 const emitSave = () => {
-    console.log(formWeekly.value)
   if (formRef.value) {
     if (appointment.value.recurrence_type.value === RecurrenceType.WEEKLY) {
       const groupedByDayAndStart = appointment.value.recurrenceWeeklyDays.reduce((acc, curr) => {

@@ -1,7 +1,7 @@
 <script setup>
 import {computed, ref} from "vue";
 import {DEFAULT_APPOINTMENT_TEXT} from "../../util/constants.js";
-
+import FileViewer from "../file-viewer/FileViewer.vue";
     const props = defineProps({
         appointment: {
             type: Object,
@@ -45,6 +45,9 @@ import {DEFAULT_APPOINTMENT_TEXT} from "../../util/constants.js";
     const newFiles = ref([])
 
     const addFile = () => {
+        if (!newFiles.value.length) {
+            return
+        }
        const [file] = newFiles.value
        note.value.files.push(file)
        newFiles.value = {}
@@ -52,6 +55,10 @@ import {DEFAULT_APPOINTMENT_TEXT} from "../../util/constants.js";
 
     const showPreviewOfFile = (file) => {
         if (file.id) {
+
+            file.toggleViewer = true
+            return
+
             window.open(file.full_name, "_blank")
             return
         }
@@ -150,8 +157,12 @@ import {DEFAULT_APPOINTMENT_TEXT} from "../../util/constants.js";
                                         <td  class="p-5"> {{ file.name }}</td>
                                         <td  class="p-5"></td>
                                         <td  class="p-5 m-5">
-                                            <v-btn icon="mdi-eye" @click="showPreviewOfFile(file)" flat></v-btn>
+                                            <v-btn icon="mdi-eye" @click="showPreviewOfFile(file)">
+                                            </v-btn>
                                             <v-btn icon="mdi-delete" flat @click="removeFile(file)"></v-btn>
+                                            <v-dialog v-model="file.toggleViewer">
+                                                    <FileViewer v-if="note.id" :file="file"  @close="file.toggleViewer = false"/>
+                                            </v-dialog>
                                         </td>
                                     </tr>
                                 </tbody>

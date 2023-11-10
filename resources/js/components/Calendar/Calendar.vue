@@ -4,8 +4,10 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import listPlugin from '@fullcalendar/list'
 import timeGridPlugin from '@fullcalendar/timegrid'
-import {computed} from "vue";
+import {computed, onMounted, ref,nextTick} from "vue";
 
+
+const emit = defineEmits(['onClickEvent'])
 
 const handleDateClick = (args) => {
     console.log(args)
@@ -18,6 +20,7 @@ const props = defineProps({
    }
 })
 
+
 const appointmentsToEventStyle = computed(() => {
     return props.appointments.map(appointment => {
         return {
@@ -25,10 +28,20 @@ const appointmentsToEventStyle = computed(() => {
             title: appointment.title,
             start: appointment.start,
             end: appointment.end,
-            allDay: false
+            allDay: false,
+            extendedProps: appointment
         }
     })
 })
+
+const eventClick = (args) => {
+    const  data  = args.event.extendedProps
+    emit('onClickEvent', data)
+}
+
+const select = (args) => {
+    console.log('select',args)
+}
 
 const calendarOptions = {
     plugins: [
@@ -36,30 +49,55 @@ const calendarOptions = {
         timeGridPlugin,
         interactionPlugin // needed for dateClick
     ],
+
     headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        left: "prev,next today",
+        center: "title",
+        right: "dayGridMonth,timeGridWeek,timeGridDay",
     },
     initialView: 'dayGridWeek',
-    dateClick: handleDateClick,
     events: appointmentsToEventStyle.value,
-    editable: true,
+    editable: false,
     selectable: true,
     selectMirror: true,
     dayMaxEvents: true,
     weekends: true,
-    selectConstraint: 'businessHours'
+    timeZone: "America/Sao_Paulo",
+    locale: "pt-br",
+    buttonText: {
+        today: "Hoje",
+        month: "Mês",
+        week: "Semana",
+        day: "Hoje",
+        list: "Lista",
+    },
+    selectConstraint: 'businessHours',
+    themeSystem: "bootstrap5",
+    eventClick,
+    select,
+    dateClick: handleDateClick,
+
 }
+
+const refCalendar = ref(null)
+
+onMounted(() => {
+    const calendarApi = refCalendar.value.getApi()
+    nextTick(() => {
+      calendarApi.render();
+    });
+
+    setTimeout(function () {
+      window.dispatchEvent(new Event("resize"));
+    }, 1);
+
+})
 </script>
 
 <template>
-    <FullCalendar :options="calendarOptions"
+    <FullCalendar :options="calendarOptions" ref="refCalendar" class="full-calendar"
     >
-<!--        <template v-slot:eventContent='arg'>-->
-<!--            <b>{{ arg.timeText }}</b>-->
-<!--            <i class="text-ellipsis">{{ arg.event.title }}</i>-->
-<!--        </template>-->
+
     </FullCalendar>
 </template>
 

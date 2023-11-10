@@ -12,6 +12,8 @@ import CreateEditAppointmentComponent from "../../components/appointments/Create
 import useRequest from "../../composables/useRequest";
 import { AppointmentStatus } from '../../shared/AppointmentStatus'
 import Calendar from "../../components/Calendar/Calendar.vue";
+import AppointmentNotes from "../../components/appointments/AppointmentNotes.vue";
+import useNoteSaver from "../../composables/useNoteSaver.js";
 const props = defineProps({
     patient: {
         type: Object,
@@ -30,6 +32,7 @@ const {
 
 const page = usePage()
 const { processRequest } = useRequest()
+const { saveNote } = useNoteSaver()
 
 const reloadData = () => {
     router.reload({
@@ -141,6 +144,24 @@ const finishAppointment = async ({ id, start }) => {
   }
 }
 
+const modalAppointment = ref(false)
+const currentAppointment = ref(null)
+
+const openAppointmentInfo = (appointment) => {
+    currentAppointment.value = appointment
+    modalAppointment.value = true
+}
+
+
+const callSaveNote = (note) => {
+    saveNote(note, () => {
+        modalAppointment.value = false
+        currentAppointment.value = null
+        reloadData()
+    })
+}
+
+
 </script>
 <template>
     <Layout>
@@ -183,7 +204,6 @@ const finishAppointment = async ({ id, start }) => {
                         <v-window-item value="option-2">
                             <v-card flat>
                                 <v-row>
-                                    <v-col cols="5">
                                         <v-row style="flex-wrap: nowrap">
                                             <v-row class="m-5" justify="center" align-items="center">
                                                 <h2 class="text-center text-h4 p-2"> Consultas </h2>
@@ -205,15 +225,17 @@ const finishAppointment = async ({ id, start }) => {
                                             @confirm="confirmAppointment"
                                             @refresh="reloadData"
                                         />
-                                    </v-col>
-                                    <v-col cols="1" class="h-50"></v-col>
-                                    <v-col cols="6">
+                                </v-row>
+                                <v-row>
+                                    <v-row class="m-5 w-full" justify="center" align-items="center">
                                         <h2 class="text-center text-h4 p-2"> Calendário </h2>
-                                        <div class="flex min-h-full">
-                                            <Calendar :appointments="patientAppointments" />
-                                        </div>
-
-                                    </v-col>
+                                    </v-row>
+                                    <div class="  p-5 w-full">
+                                    <Calendar :appointments="patientAppointments"  @onClickEvent="openAppointmentInfo"/>
+                                        <v-dialog v-model="modalAppointment">
+                                            <AppointmentNotes :appointment="currentAppointment" @close="modalAppointment = false" @save="callSaveNote"/>
+                                        </v-dialog>
+                                    </div>
                                 </v-row>
 
                             </v-card>
