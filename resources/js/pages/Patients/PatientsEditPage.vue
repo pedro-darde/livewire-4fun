@@ -231,7 +231,7 @@ const callSaveNote = (note) => {
                                         <h2 class="text-center text-h4 p-2"> Calendário </h2>
                                     </v-row>
                                     <div class="  p-5 w-full">
-                                    <Calendar :appointments="patientAppointments"  @onClickEvent="openAppointmentInfo"/>
+                                    <Calendar :events="patientAppointments"  @onClickEvent="openAppointmentInfo"/>
                                         <v-dialog v-model="modalAppointment">
                                             <AppointmentNotes :appointment="currentAppointment" @close="modalAppointment = false" @save="callSaveNote"/>
                                         </v-dialog>

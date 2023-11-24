@@ -7,29 +7,29 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import {computed, onMounted, ref,nextTick} from "vue";
 
 
-const emit = defineEmits(['onClickEvent'])
+const emit = defineEmits(['onClickEvent', 'onDateChange'])
 
 const handleDateClick = (args) => {
     console.log(args)
 }
 
 const props = defineProps({
-   appointments: {
+   events: {
        type: Array,
        required: true
    }
 })
 
 
-const appointmentsToEventStyle = computed(() => {
-    return props.appointments.map(appointment => {
+const eventsMap = computed(() => {
+    return props.events.map(event => {
         return {
-            id: appointment.id,
-            title: appointment.title,
-            start: appointment.start,
-            end: appointment.end,
+            id: event.id,
+            title: event.title,
+            start: event.start,
+            end: event.end,
             allDay: false,
-            extendedProps: appointment
+            extendedProps: event
         }
     })
 })
@@ -39,24 +39,27 @@ const eventClick = (args) => {
     emit('onClickEvent', data)
 }
 
+const onDateSet = (args) => {
+    emit('onDateChange', args)
+    console.log('onDateSet',args)
+}
+
 const select = (args) => {
     console.log('select',args)
 }
 
-const calendarOptions = {
+const calendarOptions = computed(() => ({
     plugins: [
         dayGridPlugin,
         timeGridPlugin,
-        interactionPlugin // needed for dateClick
+        interactionPlugin
     ],
-
     headerToolbar: {
         left: "prev,next today",
         center: "title",
         right: "dayGridMonth,timeGridWeek,timeGridDay",
     },
     initialView: 'dayGridWeek',
-    events: appointmentsToEventStyle.value,
     editable: false,
     selectable: true,
     selectMirror: true,
@@ -76,8 +79,9 @@ const calendarOptions = {
     eventClick,
     select,
     dateClick: handleDateClick,
-
-}
+    datesSet: onDateSet,
+    events: eventsMap.value
+}))
 
 const refCalendar = ref(null)
 
@@ -95,9 +99,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <FullCalendar :options="calendarOptions" ref="refCalendar" class="full-calendar"
-    >
-
+    <FullCalendar :options="calendarOptions" ref="refCalendar" class="full-calendar">
     </FullCalendar>
 </template>
 

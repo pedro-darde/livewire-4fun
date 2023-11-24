@@ -34,4 +34,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get("/patients/loadMore", [PatientController::class, 'loadMore']);
     Route::get("/appointments/loadMore", [AppointmentController::class, 'loadMore']);
     Route::get("/services-supplied", [ServiceSuppliedController::class, 'getAll']);
+
+    Route::get('calendar/getEvents', [\App\Http\Controllers\CalendarController::class, 'getEvents']);
 });

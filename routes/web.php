@@ -31,6 +31,7 @@ Route::middleware(UserLogged::class)->group(function () {
     Route::post('/note/{appointment}', [NoteController::class, 'store'])->name('saveNote');
     Route::post('/note/{appointment}/{note}', [NoteController::class, 'update'])->name('updateNote');
     Route::post("/downloadFile", [FileController::class, 'download'])->name("downloadFile");
+    Route::get('/calendar', [\App\Http\Controllers\CalendarController::class, 'index'])->name('calendar');
 });
 
 Route::get("/aaaaa", [AppointmentController::class, 'test']);
