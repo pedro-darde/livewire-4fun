@@ -20,7 +20,6 @@ class Patient extends Model
 
     public function appointments(): HasManyThrough
     {
-
         return $this->hasManyThrough(
             Appointment::class,
             AppointmentPatient::class,
@@ -28,7 +27,7 @@ class Patient extends Model
             'id',
             'id',
             'appointment_id'
-        )->orderBy('start', 'asc');
+        );
     }
 
     public function appointmentsPatients(): HasMany

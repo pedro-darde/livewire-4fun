@@ -2,10 +2,9 @@
 import { RequestProcessor } from "../../shared/RequestProcessor";
 import { useAlert } from "../../composables/useAlert";
 import { usePage } from "@inertiajs/vue3";
-import { router } from '@inertiajs/core';
 import Layout from "../../components/layout/Layout.vue";
 import PatientsEdit from "../../components/patients/PatientsEdit.vue";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import PatientAppointments from "../../components/patients/PatientAppointments.vue";
 import { usePopup } from '../../composables/usePopup'
 import CreateEditAppointmentComponent from "../../components/appointments/CreateEditAppointmentComponent.vue";
@@ -21,6 +20,7 @@ const props = defineProps({
     }
 })
 
+
 const {
     fireError, toast
 } = useAlert()
@@ -29,6 +29,17 @@ const {
     openPopup: openModalCreateAppointment,
     closePopup: closeModalCreateAppointment
 } = usePopup()
+
+onMounted(() => {
+    const [_, paramsString] = page.url.split('?')
+    const params = new URLSearchParams(paramsString)
+    if (params.get('tab')) {
+        const tabMap = {
+            'appointments': 'option-2'
+        }
+        tab.value = tabMap[params.get('tab')] ?? 'option-1  '
+    }
+})
 
 const page = usePage()
 const { processRequest } = useRequest()

@@ -57,8 +57,11 @@
                             <tr v-for="item in filteredPatients" :key="item.name">
                                 <td>{{ item.first_name }} {{ item.last_name }}</td>
                                 <td class="text-center" colspan="2">
-                                    <v-chip v-for="appointment in item.appointments" class="p-5 m-2">
+                                    <v-chip v-for="appointment in getPatientAppointments(item)" class="p-5 m-2">
                                         {{ appointment.startParsed }}
+                                    </v-chip>
+                                    <v-chip v-if="missingAppointmentsToShow(item) > 0" class="p-5 m-2">
+                                        <Link class="text-underline text-blue-500" :href="patientUrl(item)" :data="{ tab: 'appointments' }"> +{{ missingAppointmentsToShow(item) }} consultas </Link>
                                     </v-chip>
                                 </td>
                             </tr>
@@ -98,7 +101,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useDateFormatter } from '../../composables/useDateFormatter';
-
+import { Link, usePage } from '@inertiajs/vue3';
 const props = defineProps({
     patients: {
         type: Array
@@ -136,5 +139,20 @@ const filteredPatients = computed(() => {
 
     return props.patients
 })
+
+const getPatientAppointments = ({appointments}) => {
+    return appointments.slice(0, 6)
+}
+
+const missingAppointmentsToShow = ({ appointments }) => {
+    return appointments.length - 6
+}
+
+const page = usePage()
+
+const patientUrl = ({ id }) => {
+    return page.props.app.base_url + '/patients/' + id
+}
+
 const show = ref(false)
 </script>
