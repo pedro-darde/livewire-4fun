@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use App\Casts\Date;
-use Database\Factories\PatientFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Patient extends Model
 {
@@ -17,7 +18,7 @@ class Patient extends Model
         'birth_date' => Date::class,
     ];
 
-    public function appointments()
+    public function appointments(): HasManyThrough
     {
 
         return $this->hasManyThrough(
@@ -30,7 +31,7 @@ class Patient extends Model
         )->orderBy('start', 'asc');
     }
 
-    public function appointmentsPatients()
+    public function appointmentsPatients(): HasMany
     {
         return $this->hasMany(AppointmentPatient::class);
     }

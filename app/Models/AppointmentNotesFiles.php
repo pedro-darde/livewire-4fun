@@ -18,7 +18,8 @@ class AppointmentNotesFiles extends Model
     protected $appends = [
         'name',
         'full_name',
-        'normalized_file_path'
+        'normalized_file_path',
+        'extension'
     ];
 
     public function note(): BelongsTo
@@ -38,6 +39,11 @@ class AppointmentNotesFiles extends Model
 
     public function getFullNameAttribute(): string {
         return asset($this->normalized_file_path);
+    }
+
+    public function getExtensionAttribute(): string
+    {
+        return pathinfo($this->file_name, PATHINFO_EXTENSION);
     }
 
     public function delete()
