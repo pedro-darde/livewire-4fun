@@ -28,4 +28,24 @@ enum RecurrenceType: int
     {
         return self::MONTHLY->value;
     }
+
+    static function getText(?int $value) {
+        return match($value) {
+            self::NONE->value => 'Não',
+            self::WEEKLY->value => 'Sim, semanalmente.',
+            self::BIWEEKLY->value => 'Sim, quinzenalmente.',
+            self::MONTHLY->value => 'Sim, mensalmente.',
+            null => ''
+        };
+    }
+
+    static function getAbreviation(?int $value) {
+        return match($value) {
+            self::NONE->value => 'Não',
+            self::WEEKLY->value => 'Mensalmente',
+            self::BIWEEKLY->value => 'Quinzenalmente',
+            self::MONTHLY->value => 'Mensalmente',
+            null => ''
+        };
+    }
 }

@@ -12,7 +12,7 @@ class DashboardController extends Controller
     public function index()
     {
         return Inertia::render('Dashboard', [
-            'todayAppointments' => Appointment::todayAppointments()->with(['patients'])->get(),
+            'todayAppointments' => Appointment::todayAppointments()->with(['patients', ''])->get(),
             'patients' => Patient::whereHas('appointments')->with(['appointments'])->get(),
             'totalPatients' => Patient::count(),
         ]);

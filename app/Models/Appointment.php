@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RecurrenceType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -32,7 +33,8 @@ class Appointment extends Model
         'patientsNames',
         'onlyHourStart',
         'onlyHourEnd',
-        'title'
+        'title',
+        'recurrence_type'
     ];
 
     const MAX_WEEKLY_APPOINTMENTS = 8;
@@ -105,5 +107,31 @@ class Appointment extends Model
     public function getTitleAttribute()
     {
         return 'Consulta com ' . $this->patientsNames . ' as ' . $this->onlyHourStart;
+    }
+//  {
+//    text: "Não",
+//    value: RecurrenceType.NONE
+//  },
+//  {
+//    text: "Sim, semanalmente.",
+//    value: RecurrenceType.WEEKLY,
+//    shortDesc: "Semanalmente"
+//  },
+//  {
+//    text: "Sim, quinzenalmente.",
+//    value: RecurrenceType.BIWEEKLY,
+//    shortDesc: "Quinzenalmente"
+//  },
+//  {
+//    text: "Sim, mensalmente.",
+//    value: RecurrenceType.MONTHLY,
+//    shortDesc: "Mensalmente"
+//  }
+    public function getRecurrenceTypeAttribute() {
+        return [
+            'text' => RecurrenceType::getText($this->attributes['recurrence_type']),
+            'value' => $this->attributes['recurrence_type'],
+            'shortDesc' => RecurrenceType::getAbreviation($this->attributes['recurrence_type'])
+        ];
     }
 }

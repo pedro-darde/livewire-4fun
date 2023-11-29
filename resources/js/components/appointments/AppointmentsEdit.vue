@@ -1,5 +1,6 @@
 <script setup>
 import CreateEditPatientComponent from "./CreateEditAppointmentComponent.vue";
+import CreateEditAppointmentComponent from "./CreateEditAppointmentComponent.vue";
 
 const props = defineProps({
   appointment: {
