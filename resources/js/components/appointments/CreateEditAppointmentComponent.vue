@@ -308,8 +308,10 @@ const formWeekly = ref(false)
 
       <v-row>
         <v-col cols="4">
-          <v-text-field v-model="appointment.start" label="Data/Hora de Começo" required variant="solo-filled"
-            :rules="rules.start" v-maska:[maskDateTime]></v-text-field>
+        <v-date-picker title="Data/Hora de Começo" v-model="appointment.start">
+        </v-date-picker>
+<!--          <v-text-field v-model="appointment.start" label="Data/Hora de Começo" required variant="solo-filled"-->
+<!--            :rules="rules.start" v-maska:[maskDateTime]></v-text-field>-->
         </v-col>
         <v-col cols="4">
           <v-text-field v-model="appointment.end" label="Data/Hora de Fim" required variant="solo-filled"

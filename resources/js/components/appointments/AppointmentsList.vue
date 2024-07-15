@@ -131,9 +131,16 @@ const loadMoreItens = async ({ page, itemsPerPage, sortBy, searchString }) => {
 
 <template>
   <div>
-    <DynamicTable :registers="registers" :column-definitions="columnDefinitions" table="appointment"
-      :model-props="modelProps" @crud-event="emitCrudEvent" :use-api-pagination="true" @load-more="loadMoreItens"
-      :requesting-items="requesting" :show-order-options="false" />
+    <DynamicTable
+        :registers="registers"
+        :column-definitions="columnDefinitions" table="appointment"
+        :model-props="modelProps"
+        @crud-event="emitCrudEvent"
+        :use-api-pagination="true"
+        @load-more="loadMoreItens"
+        :requesting-items="requesting"
+        :show-order-options="false"
+    />
   </div>
 </template>
 

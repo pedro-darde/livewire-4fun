@@ -6,6 +6,7 @@ use App\Jobs\AfterAppointmentCreatedJob;
 use App\Models\Appointment;
 use App\Services\appointment\CreateAppointmentService;
 use App\Services\appointment\EditAppointmentService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
@@ -37,7 +38,7 @@ class AppointmentController extends Controller
         return Inertia::render('Appointments/AppointmentsCreatePage');
     }
 
-    public function loadMore(Request $request)
+    public function loadMore(Request $request): JsonResponse
     {
         $searchString = $request->query('search');
         $perPage = $request->query('per_page') == -1 ? 0 : $request->query('per_page');
@@ -56,6 +57,7 @@ class AppointmentController extends Controller
                     ->orderBy($orderBy, $direction)
                     ->get()
             );
+
         return response()->json([
             'appointments' => $appointments,
             'today' => Appointment::todayAppointments()->get()
